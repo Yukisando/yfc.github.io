@@ -31,6 +31,7 @@
         height: 60px;
         position: sticky;
         top: 0;
+        flex-wrap: nowrap; /* Prevent items from wrapping */
       }
       .nav-bar img {
         position: sticky;
@@ -70,7 +71,7 @@
       }
       .post {
         display: inline-block;
-        width: 100%;
+        width: calc(100% - 20px); /* Adjusted width */
         margin-bottom: 20px;
       }
       .post img {
