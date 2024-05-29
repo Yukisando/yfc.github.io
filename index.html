@@ -20,8 +20,6 @@
             text-align: center;
             color: #ffcc00;
             font-size: 3em;
-            margin-bottom: 20px;
-            padding-top: 20px;
             font-weight: lighter;
         }
         h3 {
@@ -72,22 +70,22 @@
             border-radius: 5px;
             clear: both;
         }
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            height: 100%;
-            width: 30px;
-            background: linear-gradient(to bottom, #333, #555);
-            z-index: 1000;
-            cursor: pointer;
+        
+        /* For Firefox */
+        * {
+            scrollbar-color: #333333 #1c1c1c;
+            scrollbar-width: thin;
         }
-        .scroll-indicator {
-            position: absolute;
-            width: 25px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 20px;
-            cursor: pointer;
+
+        /* For Chrome, Edge, and Safari */
+        *::-webkit-scrollbar {
+            width: 0.5em;
+            background-color: #1c1c1c;
+        }
+
+
+        *::-webkit-scrollbar-thumb:hover {
+            background-color: #555555;
         }
         #content {
             overflow-y: scroll;
@@ -106,16 +104,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px 0;
+            padding: 20px 0;
             position: relative;
+            height: 30px;
         }
         .nav-bar img {
             position: absolute;
             left: 3%;
             bottom: 0;
             cursor: pointer;
+            /* Add button hover and press effect */
+            transition: transform 0.1s;
+
         }
+
+        
     </style>
+    <link rel="shortcut icon" type="image/png" href="yuki_bg.png" />
+
   </head>
   <body>
     <div class="nav-bar">
