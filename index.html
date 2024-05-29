@@ -16,31 +16,34 @@
       h1 {
         color: #d6ab00;
         font-size: 3em;
+        text-align: left;
       }
-      .post-container {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
+      .grid-container {
+        column-gap: 20px;
+        padding: 20px;
       }
       .post {
         background: #2a2a2a;
         padding: 10px;
+        margin-bottom: 20px;
         border: 1px solid #555555;
         border-radius: 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        width: 40%;
+        display: inline-block;
+        width: 100%;
+        box-sizing: border-box;
         text-align: left;
       }
       .post img {
-        height: 400px;
+        padding-top: 10px;
+        width: 100%;
+        height: auto;
         border-radius: 10px;
-        margin: 2%;
-        vertical-align: top;
-        /* align image to right */
+        margin-bottom: 10px;
       }
       .post h3 {
         color: #cccccc;
-        font-size: 0.6em;
+        font-size: 0.8em;
         margin-bottom: 5px;
       }
       .nav-bar {
@@ -60,30 +63,19 @@
         bottom: 0;
         cursor: pointer;
       }
-      .left-margin {
-        margin-left: 50px;
-      }
-      .right-margin {
-        margin-right: 50px;
-      }
-
       .button-link img {
         transition: transform 0.1s ease;
       }
-
       .button-link img:hover {
         transform: translateY(5px);
       }
-
       .button-link img:active {
         transform: translateY(8px);
       }
-
       * {
         scrollbar-color: #333333 #1c1c1c;
         scrollbar-width: large;
       }
-
       .scroll-button {
         position: fixed;
         bottom: 10px;
@@ -101,6 +93,27 @@
         font-size: 24px;
         font-weight: bold;
         color: #fac800;
+      }
+
+      @media (min-width: 1200px) and (max-width: 1299px) {
+        .grid-container {
+          column-count: 4;
+        }
+      }
+      @media (min-width: 992px) and (max-width: 1199px) {
+        .grid-container {
+          column-count: 3;
+        }
+      }
+      @media (min-width: 768px) and (max-width: 991px) {
+        .grid-container {
+          column-count: 2;
+        }
+      }
+      @media (max-width: 767px) {
+        .grid-container {
+          column-count: 1;
+        }
       }
     </style>
     <link rel="shortcut icon" type="image/png" href="yuki.png" />
@@ -123,7 +136,7 @@
         ⬇
       </button>
     </div>
-    <div id="posts-container">
+    <div id="posts-container" class="grid-container">
       <!-- Posts will be dynamically inserted here -->
     </div>
 
@@ -477,11 +490,7 @@
         },
       ];
 
-      function createPost(post, index) {
-        const postContainer = document.createElement("div");
-        postContainer.className = `post-container ${
-          index % 2 === 0 ? "left-margin" : "right-margin"
-        }`;
+      function createPost(post) {
         const postElement = document.createElement("div");
         postElement.className = "post";
         let imagesHtml = "";
@@ -489,16 +498,15 @@
           imagesHtml += `<img src="${img}" alt="post image">`;
         });
         postElement.innerHTML = `
-                <h3>${post.date}</h3>
-                <div>${post.content}</div>
-                <div>${imagesHtml}</div>
-            `;
-        postContainer.appendChild(postElement);
-        document.getElementById("posts-container").appendChild(postContainer);
+        <h3>${post.date}</h3>
+        <div>${post.content}</div>
+        <div>${imagesHtml}</div>
+      `;
+        document.getElementById("posts-container").appendChild(postElement);
       }
 
       // Initialize posts
-      posts.forEach((post, index) => createPost(post, index));
+      posts.forEach((post) => createPost(post));
 
       function scrollToPosition() {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
