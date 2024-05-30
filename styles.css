@@ -12,11 +12,12 @@ body {
     background: #333;
     display: flex;
     align-items: center;
-    position: relative;
-    flex-wrap: wrap;
+    position: fixed;
+    flex-wrap: nowrap;
+    top: 0px;
 }
 
-.nav-bar h1 {
+h1 {
     color: #d6ab00;
     font-size: 2em;
     margin-left: 40px;
@@ -74,7 +75,7 @@ body {
 .post {
     display: inline-block;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     border: 1px solid #fac800;
     /* Add a border */
     padding-bottom: 20px;
@@ -106,14 +107,10 @@ body {
     column-count: 1;
     column-gap: 60px;
     margin: 20px;
+    margin-top: 120px;
     width: calc(100% - 80px);
 }
 
-@media (max-width: 767px) {
-    .nav-bar h1 {
-        font-size: 1.7em;
-    }
-}
 
 @media (min-width: 600px) {
     .grid-container {
