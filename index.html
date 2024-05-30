@@ -13,12 +13,13 @@
         color: #fac800;
         text-align: center;
       }
-      h1 {
+      .nav-bar h1 {
         color: #d6ab00;
-        font-size: 3em;
+        font-size: 2em;
+        margin-left: 40px;
       }
       @media (max-width: 767px) {
-        h1 {
+        .nav-bar h1 {
           font-size: 1.7em;
         }
       }
@@ -26,20 +27,21 @@
         width: 100%;
         background: #333;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        height: 60px;
-        position: sticky;
-        top: 0;
-        flex-wrap: nowrap; /* Prevent items from wrapping */
+        position: relative;
+        flex-wrap: wrap;
+        justify-content: flex-start; /* Align items to the start of the container */
       }
+      .nav-bar a.button-link {
+        position: absolute;
+        bottom: 0;
+        left: -30px; /* Adjust this value as needed */
+        transform: translateY(8%);
+      }
+
       .nav-bar img {
-        position: sticky;
-        cursor: pointer;
-        translate: 10px 6.5px;
-      }
-      .button-link img {
-        transition: transform 0.1s ease;
+        margin-right: 20px; /* Add some space between the image and the title */
       }
       .button-link img:hover {
         transform: translateY(-5px);
@@ -53,8 +55,8 @@
       }
       .scroll-button {
         position: fixed;
-        bottom: 10px;
-        right: 10px;
+        bottom: 0px;
+        right: 0px;
         width: 50px;
         height: 50px;
         background-color: transparent;
@@ -71,15 +73,14 @@
       }
       .post {
         display: inline-block;
-        width: calc(100% - 20px); /* Adjusted width */
-        margin-bottom: 20px;
+        width: 100%; /* Adjusted width */
+        margin-bottom: 10px;
       }
       .post img {
         margin-top: 20px;
         width: 100%;
         height: auto;
         border-radius: 10px;
-        margin-bottom: 10px;
       }
       .post h3 {
         color: #cccccc;
@@ -87,10 +88,12 @@
         margin-bottom: 5px;
       }
       .grid-container {
-        margin: 20px;
         column-count: 1;
         column-gap: 20px;
-        width: 100%;
+        margin: 20px; /* This adds a margin of 20px to all sides */
+        width: calc(
+          100% - 40px
+        ); /* This adjusts the width to account for the added margin */
       }
 
       @media (min-width: 600px) {
@@ -115,7 +118,6 @@
   </head>
   <body>
     <div class="nav-bar">
-      <h1>Yukisan Fan Club</h1>
       <a
         href="https://worldofwarcraft.blizzard.com/en-gb/character/eu/dalaran/y%C3%BCkisan"
         target="_blank"
@@ -123,6 +125,7 @@
       >
         <img src="/yuki_bg.png" alt="WoW Armory" width="60" />
       </a>
+      <h1>Yukisan Fan Club</h1>
       <button
         class="scroll-button"
         id="scrollButton"
