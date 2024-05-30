@@ -13,35 +13,27 @@
         color: #fac800;
         text-align: center;
       }
+      .nav-bar {
+        width: 100%;
+        background: #333;
+        display: flex;
+        align-items: center;
+        position: relative;
+        flex-wrap: wrap;
+      }
       .nav-bar h1 {
         color: #d6ab00;
         font-size: 2em;
         margin-left: 40px;
       }
-      @media (max-width: 767px) {
-        .nav-bar h1 {
-          font-size: 1.7em;
-        }
-      }
-      .nav-bar {
-        width: 100%;
-        background: #333;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-        flex-wrap: wrap;
-        justify-content: flex-start; /* Align items to the start of the container */
+      .nav-bar img {
+        margin-right: 20px;
       }
       .nav-bar a.button-link {
         position: absolute;
         bottom: 0;
-        left: -30px; /* Adjust this value as needed */
+        left: -30px;
         transform: translateY(8%);
-      }
-
-      .nav-bar img {
-        margin-right: 20px; /* Add some space between the image and the title */
       }
       .button-link img:hover {
         transform: translateX(5px);
@@ -73,7 +65,7 @@
       }
       .post {
         display: inline-block;
-        width: 100%; /* Adjusted width */
+        width: 100%;
         margin-bottom: 10px;
       }
       .post img {
@@ -90,24 +82,24 @@
       .grid-container {
         column-count: 1;
         column-gap: 20px;
-        margin: 20px; /* This adds a margin of 20px to all sides */
-        width: calc(
-          100% - 40px
-        ); /* This adjusts the width to account for the added margin */
+        margin: 20px;
+        width: calc(100% - 40px);
       }
-
+      @media (max-width: 767px) {
+        .nav-bar h1 {
+          font-size: 1.7em;
+        }
+      }
       @media (min-width: 600px) {
         .grid-container {
           column-count: 2;
         }
       }
-
       @media (min-width: 900px) {
         .grid-container {
           column-count: 3;
         }
       }
-
       @media (min-width: 1300px) {
         .grid-container {
           column-count: 4;
@@ -137,7 +129,6 @@
     <div id="posts-container" class="grid-container">
       <!-- Posts will be dynamically inserted here -->
     </div>
-
     <script>
       async function fetchPosts() {
         try {
@@ -165,26 +156,21 @@
       }
 
       function scrollToPosition() {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-          window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth",
-          });
-        }
+        const scrollTop =
+          window.innerHeight + window.scrollY >= document.body.offsetHeight
+            ? 0
+            : document.body.scrollHeight;
+        window.scrollTo({ top: scrollTop, behavior: "smooth" });
       }
 
       window.addEventListener("scroll", function () {
         const button = document.getElementById("scrollButton");
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-          button.innerHTML = "⬆";
-        } else {
-          button.innerHTML = "⬇";
-        }
+        button.innerHTML =
+          window.innerHeight + window.scrollY >= document.body.offsetHeight
+            ? "⬆"
+            : "⬇";
       });
 
-      // Initialize posts
       fetchPosts();
     </script>
   </body>
