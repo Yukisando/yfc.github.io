@@ -54,11 +54,11 @@ h1 {
 }
 
 .scroll-button {
-    position: fixed;
-    bottom: 10px;
+    position: absolute;
+    bottom: 20px;
     right: 10px;
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
     background-color: transparent;
     border: 3px solid #fac800;
     border-radius: 50%;

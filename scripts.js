@@ -2,7 +2,7 @@ window.addEventListener('resize', function () {
     var width = window.innerWidth;
     var title = document.getElementById('title');
     if (width <= 767) {
-        title.textContent = 'Yükisan F.C.';
+        title.textContent = 'Yükisan F.C';
     } else {
         title.textContent = 'Yükisan Fan Club';
     }
