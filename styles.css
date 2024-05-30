@@ -42,8 +42,14 @@ body {
 }
 
 * {
-    scrollbar-color: #333333 #1c1c1c;
-    scrollbar-width: large;
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 .scroll-button {
