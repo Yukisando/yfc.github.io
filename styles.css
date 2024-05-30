@@ -75,6 +75,18 @@ body {
     display: inline-block;
     width: 100%;
     margin-bottom: 10px;
+    border: 1px solid #fac800;
+    /* Add a border */
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    /* Add some padding */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Add a shadow for a 3D effect */
+    border-radius: 10px;
+    /* Round the corners */
+    background-color: #333;
+    /* Add a background color */
 }
 
 .post img {
@@ -92,9 +104,9 @@ body {
 
 .grid-container {
     column-count: 1;
-    column-gap: 20px;
+    column-gap: 60px;
     margin: 20px;
-    width: calc(100% - 40px);
+    width: calc(100% - 80px);
 }
 
 @media (max-width: 767px) {
