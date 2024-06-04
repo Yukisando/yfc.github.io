@@ -2,7 +2,7 @@ async function fetchPosts() {
     try {
         const response = await fetch("posts.json");
         const posts = await response.json();
-        posts.forEach(createPost);
+        posts.reverse().forEach(createPost);
     } catch (error) {
         console.error("Error fetching posts:", error);
     }
