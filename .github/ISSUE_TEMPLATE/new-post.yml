@@ -9,6 +9,10 @@ body:
         ## Create a New Post
         Fill in the details below to create a new post!
         
+        **Important:** 
+        - You must edit the title above to add your post text after "[POST] "
+        - You must drag & drop at least one image in the Content field below
+        
   - type: input
     id: access-code
     attributes:
@@ -22,7 +26,7 @@ body:
     id: content
     attributes:
       label: Content
-      description: What's happening? You can drag and drop images directly here!
-      placeholder: "Describe your post... (tip: drag & drop images right into this box!)"
+      description: Drag and drop at least one image here! (Required)
+      placeholder: "Drag & drop your image(s) here..."
     validations:
       required: true

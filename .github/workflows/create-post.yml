@@ -68,11 +68,32 @@ jobs:
                 labels: ['invalid']
               });
               
+              core.setFailed('Incorrect access code provided');
               return;
             }
             
             // Extract the post title from issue title (remove "[POST] " prefix)
             const postTitle = issueTitle.replace(/^\[POST\]\s*/, '').trim();
+            
+            // Validate that title was provided
+            if (!postTitle || postTitle.length === 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '❌ **Missing post title!** Please edit the issue title to add your post text after "[POST] ".'
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['invalid']
+              });
+              
+              core.setFailed('Post title is required');
+              return;
+            }
             
             // Extract image URLs from content field (GitHub automatically uploads images)
             const imageRegex = /!\[.*?\]\((https:\/\/[^\)]+)\)/g;
@@ -81,6 +102,26 @@ jobs:
             
             while ((match = imageRegex.exec(contentField)) !== null) {
               imageUrls.push(match[1]);
+            }
+            
+            // Validate that at least one image was provided
+            if (imageUrls.length === 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '❌ **Missing image!** Please drag and drop at least one image into the Content field.'
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['invalid']
+              });
+              
+              core.setFailed('At least one image is required');
+              return;
             }
             
             // Use the issue title as the post content
