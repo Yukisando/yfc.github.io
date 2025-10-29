@@ -6,7 +6,8 @@ on:
 
 jobs:
   create-post:
-    if: contains(github.event.issue.labels.*.name, 'new-post')
+    # Check if issue was created from the new-post template
+    if: contains(github.event.issue.body, '### Access Code')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -29,6 +30,16 @@ jobs:
             
             const accessCode = accessCodeMatch ? accessCodeMatch[1].trim() : '';
             let content = contentMatch ? contentMatch[1].trim() : '';
+            
+            // IMMEDIATELY hide the access code for security
+            const cleanedBody = body.replace(/### Access Code\s*\n\s*.+/, '### Access Code\n\n🔒 *Access code hidden for security*');
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: cleanedBody
+            });
             
             // Get today's date in DD-MM-YYYY format
             const today = new Date();
@@ -99,16 +110,6 @@ jobs:
             console.log('Post added successfully!');
             core.setOutput('post-added', 'true');
             core.setOutput('post-data', JSON.stringify(newPost, null, 2));
-            
-            // Hide the access code from the issue body
-            const cleanedBody = body.replace(/### Access Code\s*\n\s*.+\n/, '### Access Code\n\n✅ *Access code verified and hidden*\n');
-            
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              body: cleanedBody
-            });
 
       - name: Commit and push changes
         run: |

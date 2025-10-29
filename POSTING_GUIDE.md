@@ -11,7 +11,7 @@ Visit: https://github.com/Yukisando/yfc.github.io/issues
 You'll see a template called "📝 New Post" - click "Get started"
 
 ### 3. Fill in the Form
-- **Access Code**: `iloveyuki` (required - keeps random people from posting)
+- **Access Code**: `iloveyuki` (required - hidden immediately for security)
 - **Content**: 
   - Write your post text
   - **Drag and drop images directly into the Content box!**
@@ -23,7 +23,8 @@ Click "Submit new issue"
 
 ### 5. Wait for Automation (about 30 seconds)
 - GitHub Actions automatically processes your post
-- It checks the access code (then hides it for security)
+- It hides the access code immediately for security
+- Checks if the code was correct
 - Extracts your images automatically
 - Adds today's date automatically
 - Updates the website
