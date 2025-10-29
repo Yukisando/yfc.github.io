@@ -79,7 +79,8 @@ h1 {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: fit-content;
+    height: 400px;
+    min-height: 400px;
     box-sizing: border-box;
     border: 1px solid #fac800;
     padding: 20px;
@@ -106,7 +107,12 @@ h1 {
     margin-top: 15px;
     border-radius: 10px;
     overflow: hidden;
-    background-color: #1a1a1a;
+    background-color: #333;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
 }
 
 .image-placeholder {
@@ -128,6 +134,13 @@ h1 {
     filter: blur(20px);
     z-index: 1;
     pointer-events: none; /* allow clicks to pass through to post element */
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.image-placeholder.hidden {
+    opacity: 0;
+    animation: none;
 }
 
 
@@ -146,7 +159,9 @@ h1 {
 .post-image {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
     border-radius: 10px;
     position: relative;
     z-index: 2;
@@ -156,10 +171,6 @@ h1 {
 
 .post-image.loaded {
     opacity: 1;
-}
-
-.post-image.loaded ~ .image-placeholder {
-    display: none;
 }
 
 /* Legacy support for old posts without image containers */
@@ -262,20 +273,30 @@ h1 {
     margin-top: 15px;
     border-radius: 10px;
     overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .carousel-inner {
     position: relative;
     width: 100%;
+    flex: 1;
+    display: flex;
+    min-height: 0;
 }
 
 .carousel-slide {
     display: none;
     width: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
 .carousel-slide.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 .carousel-btn {

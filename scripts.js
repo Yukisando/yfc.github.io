@@ -26,7 +26,7 @@ function createPost(post) {
                         alt="post image" 
                         class="post-image lazy-load"
                         loading="lazy"
-                        onload="this.classList.add('loaded')"
+                        onload="this.classList.add('loaded'); this.previousElementSibling.classList.add('hidden');"
                     >
                 </div>
             `;
@@ -42,7 +42,7 @@ function createPost(post) {
                             alt="post image ${index + 1}" 
                             class="post-image lazy-load"
                             loading="lazy"
-                            onload="this.classList.add('loaded')"
+                            onload="this.classList.add('loaded'); this.previousElementSibling.classList.add('hidden');"
                         >
                     </div>
                 </div>
@@ -146,7 +146,7 @@ function openPostModal(post) {
                         alt="post image" 
                         class="post-image lazy-load"
                         loading="lazy"
-                        onload="this.classList.add('loaded')"
+                        onload="this.classList.add('loaded'); this.previousElementSibling.classList.add('hidden');"
                     >
                 </div>
             `;
@@ -161,7 +161,7 @@ function openPostModal(post) {
                             alt="post image ${index + 1}" 
                             class="post-image lazy-load"
                             loading="lazy"
-                            onload="this.classList.add('loaded')"
+                            onload="this.classList.add('loaded'); this.previousElementSibling.classList.add('hidden');"
                         >
                     </div>
                 </div>
