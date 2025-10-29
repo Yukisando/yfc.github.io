@@ -12,9 +12,9 @@ body:
   - type: input
     id: password
     attributes:
-      label: Password
-      description: Enter the password to post
-      placeholder: "Enter password"
+      label: Access Code
+      description: Enter the access code to post
+      placeholder: "Enter access code"
     validations:
       required: true
 
