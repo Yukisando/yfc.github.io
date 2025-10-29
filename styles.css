@@ -78,20 +78,81 @@ h1 {
     width: 100%;
     margin-bottom: 20px;
     border: 1px solid #fac800;
-    /* Add a border */
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    /* Add some padding */
+    padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* Add a shadow for a 3D effect */
     border-radius: 10px;
-    /* Round the corners */
     background-color: #333;
-    /* Add a background color */
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
-.post img {
+.post-content {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+/* Image container with blur placeholder */
+.image-container {
+    position: relative;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #1a1a1a;
+}
+
+.image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        #2a2a2a 0%,
+        #3a3a3a 25%,
+        #2a2a2a 50%,
+        #3a3a3a 75%,
+        #2a2a2a 100%
+    );
+    background-size: 400% 400%;
+    animation: shimmer 2s ease-in-out infinite;
+    filter: blur(20px);
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.post-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.post-image.loaded {
+    opacity: 1;
+}
+
+.post-image.loaded ~ .image-placeholder {
+    display: none;
+}
+
+/* Legacy support for old posts without image containers */
+.post img:not(.post-image) {
     margin-top: 20px;
     width: 100%;
     height: auto;
@@ -106,28 +167,39 @@ h1 {
 
 .grid-container {
     column-count: 1;
-    column-gap: 60px;
+    column-gap: 20px;
     margin: 20px;
     margin-top: 100px;
-    width: calc(100% - 80px);
+    width: calc(100% - 40px);
 }
-
 
 @media (min-width: 600px) {
     .grid-container {
         column-count: 2;
+        column-gap: 30px;
+        margin: 30px;
+        margin-top: 100px;
+        width: calc(100% - 60px);
     }
 }
 
 @media (min-width: 900px) {
     .grid-container {
         column-count: 3;
+        column-gap: 40px;
+        margin: 40px;
+        margin-top: 110px;
+        width: calc(100% - 80px);
     }
 }
 
 @media (min-width: 1300px) {
     .grid-container {
         column-count: 4;
+        column-gap: 50px;
+        margin: 50px;
+        margin-top: 120px;
+        width: calc(100% - 100px);
     }
 }
 
