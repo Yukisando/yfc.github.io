@@ -1,0 +1,50 @@
+name: 📝 New Post
+description: Create a new post for the Yükisan Fan Club
+title: "[POST] "
+labels: ["new-post"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Create a New Post
+        Fill in the details below to create a new post!
+        
+  - type: input
+    id: password
+    attributes:
+      label: Password
+      description: Enter the password to post
+      placeholder: "Enter password"
+    validations:
+      required: true
+
+  - type: input
+    id: date
+    attributes:
+      label: Date
+      description: Date of the post (DD-MM-YYYY)
+      placeholder: "29-10-2025"
+    validations:
+      required: true
+
+  - type: textarea
+    id: content
+    attributes:
+      label: Content
+      description: What's happening?
+      placeholder: "Describe your post..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: images
+    attributes:
+      label: Image URLs
+      description: |
+        Add image URLs (one per line). You can upload images to this issue and copy the URLs.
+        To upload: drag and drop images into this text box, wait for them to upload, then copy the URLs.
+      placeholder: |
+        https://user-images.githubusercontent.com/...
+        https://user-images.githubusercontent.com/...
+    validations:
+      required: false

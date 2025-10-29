@@ -1,0 +1,118 @@
+name: Create Post from Issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  create-post:
+    if: contains(github.event.issue.labels.*.name, 'new-post')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse issue and create post
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body;
+            
+            // Parse the issue body to extract form data
+            const passwordMatch = body.match(/### Password\s*\n\s*(.+)/);
+            const dateMatch = body.match(/### Date\s*\n\s*(.+)/);
+            const contentMatch = body.match(/### Content\s*\n\s*([\s\S]+?)(?=\n###|\n\n###|$)/);
+            const imagesMatch = body.match(/### Image URLs\s*\n\s*([\s\S]+?)(?=\n###|$)/);
+            
+            const password = passwordMatch ? passwordMatch[1].trim() : '';
+            const date = dateMatch ? dateMatch[1].trim() : '';
+            const content = contentMatch ? contentMatch[1].trim() : '';
+            const imagesText = imagesMatch ? imagesMatch[1].trim() : '';
+            
+            // Password check (change 'yukisan2024' to your desired password)
+            const CORRECT_PASSWORD = 'yukisan2024';
+            
+            if (password !== CORRECT_PASSWORD) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '❌ **Incorrect password!** This post will not be published.'
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                labels: ['invalid']
+              });
+              
+              return;
+            }
+            
+            // Parse image URLs (one per line)
+            const imageUrls = imagesText
+              .split('\n')
+              .map(line => line.trim())
+              .filter(line => line && (line.startsWith('http://') || line.startsWith('https://')));
+            
+            // Create new post object
+            const newPost = {
+              date: date,
+              content: content,
+              images: imageUrls
+            };
+            
+            // Read current posts.json
+            const fs = require('fs');
+            const postsPath = 'posts.json';
+            let posts = [];
+            
+            try {
+              const postsContent = fs.readFileSync(postsPath, 'utf8');
+              posts = JSON.parse(postsContent);
+            } catch (error) {
+              console.log('Error reading posts.json, starting fresh:', error);
+            }
+            
+            // Add new post to the beginning
+            posts.push(newPost);
+            
+            // Write back to posts.json
+            fs.writeFileSync(postsPath, JSON.stringify(posts, null, 4) + '\n');
+            
+            console.log('Post added successfully!');
+            core.setOutput('post-added', 'true');
+            core.setOutput('post-data', JSON.stringify(newPost, null, 2));
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add posts.json
+          git commit -m "Add new post from issue #${{ github.event.issue.number }}" || exit 0
+          git push
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '✅ **Post published successfully!** Your post has been added to the website.\n\nThe website will update in a few minutes. You can close this issue now.'
+            });
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['published']
+            });
