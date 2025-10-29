@@ -10,7 +10,7 @@ body:
         Fill in the details below to create a new post!
         
   - type: input
-    id: password
+    id: access-code
     attributes:
       label: Access Code
       description: Enter the access code to post
@@ -18,33 +18,11 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: date
-    attributes:
-      label: Date
-      description: Date of the post (DD-MM-YYYY)
-      placeholder: "29-10-2025"
-    validations:
-      required: true
-
   - type: textarea
     id: content
     attributes:
       label: Content
-      description: What's happening?
-      placeholder: "Describe your post..."
+      description: What's happening? You can drag and drop images directly here!
+      placeholder: "Describe your post... (tip: drag & drop images right into this box!)"
     validations:
       required: true
-
-  - type: textarea
-    id: images
-    attributes:
-      label: Image URLs
-      description: |
-        Add image URLs (one per line). You can upload images to this issue and copy the URLs.
-        To upload: drag and drop images into this text box, wait for them to upload, then copy the URLs.
-      placeholder: |
-        https://user-images.githubusercontent.com/...
-        https://user-images.githubusercontent.com/...
-    validations:
-      required: false

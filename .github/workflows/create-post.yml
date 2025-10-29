@@ -24,25 +24,28 @@ jobs:
             const body = issue.body;
             
             // Parse the issue body to extract form data
-            const passwordMatch = body.match(/### Password\s*\n\s*(.+)/);
-            const dateMatch = body.match(/### Date\s*\n\s*(.+)/);
-            const contentMatch = body.match(/### Content\s*\n\s*([\s\S]+?)(?=\n###|\n\n###|$)/);
-            const imagesMatch = body.match(/### Image URLs\s*\n\s*([\s\S]+?)(?=\n###|$)/);
+            const accessCodeMatch = body.match(/### Access Code\s*\n\s*(.+)/);
+            const contentMatch = body.match(/### Content\s*\n\s*([\s\S]+?)(?=\n###|$)/);
             
-            const password = passwordMatch ? passwordMatch[1].trim() : '';
-            const date = dateMatch ? dateMatch[1].trim() : '';
-            const content = contentMatch ? contentMatch[1].trim() : '';
-            const imagesText = imagesMatch ? imagesMatch[1].trim() : '';
+            const accessCode = accessCodeMatch ? accessCodeMatch[1].trim() : '';
+            let content = contentMatch ? contentMatch[1].trim() : '';
             
-            // Password check (change 'yukisan2024' to your desired password)
-            const CORRECT_PASSWORD = 'yukisan2024';
+            // Get today's date in DD-MM-YYYY format
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const date = `${day}-${month}-${year}`;
             
-            if (password !== CORRECT_PASSWORD) {
+            // Password check
+            const CORRECT_PASSWORD = 'iloveyuki';
+            
+            if (accessCode !== CORRECT_PASSWORD) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: '❌ **Incorrect password!** This post will not be published.'
+                body: '❌ **Incorrect access code!** This post will not be published.'
               });
               
               await github.rest.issues.update({
@@ -56,11 +59,17 @@ jobs:
               return;
             }
             
-            // Parse image URLs (one per line)
-            const imageUrls = imagesText
-              .split('\n')
-              .map(line => line.trim())
-              .filter(line => line && (line.startsWith('http://') || line.startsWith('https://')));
+            // Extract image URLs from content (GitHub automatically uploads images)
+            const imageRegex = /!\[.*?\]\((https:\/\/[^\)]+)\)/g;
+            const imageUrls = [];
+            let match;
+            
+            while ((match = imageRegex.exec(content)) !== null) {
+              imageUrls.push(match[1]);
+            }
+            
+            // Remove markdown image syntax from content, leaving just text
+            content = content.replace(/!\[.*?\]\(https:\/\/[^\)]+\)/g, '').trim();
             
             // Create new post object
             const newPost = {
@@ -90,6 +99,16 @@ jobs:
             console.log('Post added successfully!');
             core.setOutput('post-added', 'true');
             core.setOutput('post-data', JSON.stringify(newPost, null, 2));
+            
+            // Hide the access code from the issue body
+            const cleanedBody = body.replace(/### Access Code\s*\n\s*.+\n/, '### Access Code\n\n✅ *Access code verified and hidden*\n');
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: cleanedBody
+            });
 
       - name: Commit and push changes
         run: |
