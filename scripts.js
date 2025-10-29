@@ -79,6 +79,10 @@ function createPost(post) {
             e.target.tagName === 'BUTTON') {
             return;
         }
+        // Don't open modal on mobile (screens smaller than 600px)
+        if (window.innerWidth < 600) {
+            return;
+        }
         openPostModal(post);
     });
     

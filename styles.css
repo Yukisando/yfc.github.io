@@ -26,6 +26,26 @@ h1 {
     margin-left: 40px;
 }
 
+/* Mobile: show short title */
+.title-short {
+    display: inline;
+}
+
+.title-full {
+    display: none;
+}
+
+/* Desktop: show full title */
+@media (min-width: 600px) {
+    .title-short {
+        display: none;
+    }
+    
+    .title-full {
+        display: inline;
+    }
+}
+
 .nav-bar img {
     margin-right: 20px;
 }
