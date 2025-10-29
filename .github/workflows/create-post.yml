@@ -107,20 +107,27 @@ jobs:
             const markdownRegex = /!\[.*?\]\((https?:\/\/[^\)]+)\)/g;
             let match;
             while ((match = markdownRegex.exec(contentField)) !== null) {
-              imageUrls.push(match[1]);
+              const url = match[1].trim();
+              if (!imageUrls.includes(url)) {
+                imageUrls.push(url);
+              }
             }
             
             // Match HTML img tags: <img src="url" ...>
             const htmlRegex = /<img[^>]+src=["'](https?:\/\/[^"']+)["']/g;
             while ((match = htmlRegex.exec(contentField)) !== null) {
-              imageUrls.push(match[1]);
+              const url = match[1].trim();
+              if (!imageUrls.includes(url)) {
+                imageUrls.push(url);
+              }
             }
             
             // Match plain GitHub URLs that might be images/videos
-            const urlRegex = /https:\/\/(?:github\.com\/user-attachments\/assets|private-user-images\.githubusercontent\.com)\/[^\s<>)]+/g;
+            const urlRegex = /https:\/\/(?:github\.com\/user-attachments\/assets|private-user-images\.githubusercontent\.com)\/[a-zA-Z0-9\-_]+/g;
             while ((match = urlRegex.exec(contentField)) !== null) {
-              if (!imageUrls.includes(match[0])) {
-                imageUrls.push(match[0]);
+              const url = match[0].trim();
+              if (!imageUrls.includes(url)) {
+                imageUrls.push(url);
               }
             }
             
