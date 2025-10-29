@@ -53,11 +53,11 @@ function createPost(post) {
                     <div class="carousel-inner">
                         ${imagesSlides}
                     </div>
-                    <button class="carousel-btn prev" onclick="changeSlide('${carouselId}', -1)">❮</button>
-                    <button class="carousel-btn next" onclick="changeSlide('${carouselId}', 1)">❯</button>
+                    <button class="carousel-btn prev" onclick="event.stopPropagation(); changeSlide('${carouselId}', -1)">❮</button>
+                    <button class="carousel-btn next" onclick="event.stopPropagation(); changeSlide('${carouselId}', 1)">❯</button>
                     <div class="carousel-dots">
                         ${post.images.map((_, i) => `
-                            <span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide('${carouselId}', ${i})"></span>
+                            <span class="dot ${i === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToSlide('${carouselId}', ${i})"></span>
                         `).join('')}
                     </div>
                 </div>
@@ -70,6 +70,18 @@ function createPost(post) {
         <div class="post-content">${post.content}</div>
         ${imagesHtml}
     `;
+    
+    // Add click handler to open modal AFTER setting innerHTML
+    postElement.addEventListener('click', function(e) {
+        // Don't open modal if clicking on carousel controls
+        if (e.target.classList.contains('carousel-btn') || 
+            e.target.classList.contains('dot') ||
+            e.target.tagName === 'BUTTON') {
+            return;
+        }
+        openPostModal(post);
+    });
+    
     document.getElementById("posts-container").appendChild(postElement);
 }
 
@@ -115,6 +127,92 @@ window.addEventListener("scroll", function () {
         window.innerHeight + window.scrollY >= document.body.offsetHeight
             ? "⬆"
             : "⬇";
+});
+
+// Modal functions
+function openPostModal(post) {
+    const modal = document.getElementById('postModal');
+    const modalContent = document.getElementById('modalPostContent');
+    
+    let imagesHtml = "";
+    
+    if (post.images && post.images.length > 0) {
+        if (post.images.length === 1) {
+            imagesHtml = `
+                <div class="image-container">
+                    <div class="image-placeholder"></div>
+                    <img 
+                        src="${post.images[0]}" 
+                        alt="post image" 
+                        class="post-image lazy-load"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </div>
+            `;
+        } else {
+            const carouselId = `modal-carousel-${Date.now()}`;
+            const imagesSlides = post.images.map((img, index) => `
+                <div class="carousel-slide ${index === 0 ? 'active' : ''}">
+                    <div class="image-container">
+                        <div class="image-placeholder"></div>
+                        <img 
+                            src="${img}" 
+                            alt="post image ${index + 1}" 
+                            class="post-image lazy-load"
+                            loading="lazy"
+                            onload="this.classList.add('loaded')"
+                        >
+                    </div>
+                </div>
+            `).join('');
+            
+            imagesHtml = `
+                <div class="carousel" id="${carouselId}">
+                    <div class="carousel-inner">
+                        ${imagesSlides}
+                    </div>
+                    <button class="carousel-btn prev" onclick="changeSlide('${carouselId}', -1)">❮</button>
+                    <button class="carousel-btn next" onclick="changeSlide('${carouselId}', 1)">❯</button>
+                    <div class="carousel-dots">
+                        ${post.images.map((_, i) => `
+                            <span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide('${carouselId}', ${i})"></span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    modalContent.innerHTML = `
+        <h3>${post.date}</h3>
+        <div class="post-content">${post.content}</div>
+        ${imagesHtml}
+    `;
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closePostModal() {
+    const modal = document.getElementById('postModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+// Close modal when clicking outside content
+window.onclick = function(event) {
+    const modal = document.getElementById('postModal');
+    if (event.target === modal) {
+        closePostModal();
+    }
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closePostModal();
+    }
 });
 
 fetchPosts();

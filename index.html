@@ -37,12 +37,20 @@
         class="new-post-button"
         title="Create New Post"
       >
-        ➕
+        +
       </a>
     </div>
 
     <!-- Posts will be dynamically inserted here -->
     <div id="posts-container" class="grid-container"></div>
+
+    <!-- Post Modal for expanded view -->
+    <div id="postModal" class="post-modal">
+      <div class="post-modal-content">
+        <span class="post-modal-close" onclick="closePostModal()">&times;</span>
+        <div id="modalPostContent"></div>
+      </div>
+    </div>
   </body>
   <script src="scripts.js"></script>
 </html>
