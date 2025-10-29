@@ -11,54 +11,57 @@ Visit: https://github.com/Yukisando/yfc.github.io/issues
 You'll see a template called "📝 New Post" - click "Get started"
 
 ### 3. Fill in the Form
-- **Password**: `yukisan2024` (required - keeps random people from posting)
-- **Date**: Use format DD-MM-YYYY (e.g., `29-10-2025`)
-- **Content**: Write whatever you want to say
-- **Image URLs**: 
-  - Drag and drop images directly into the "Image URLs" text box
-  - Wait for them to upload (you'll see a loading indicator)
-  - GitHub will convert them to URLs automatically
-  - The URLs will look like `https://github.com/user-attachments/assets/...`
-  - You can add multiple images, one URL per line
+- **Access Code**: `iloveyuki` (required - keeps random people from posting)
+- **Content**: 
+  - Write your post text
+  - **Drag and drop images directly into the Content box!**
+  - GitHub automatically uploads them for you
+  - No need to copy/paste URLs anymore!
 
 ### 4. Submit the Issue
 Click "Submit new issue"
 
-### 5. Wait for Automation
-- GitHub Actions will automatically process your post
-- It checks the password
-- If correct, it adds the post to `posts.json`
-- The website updates automatically
-- You'll get a comment on the issue when it's done (✅ or ❌)
+### 5. Wait for Automation (about 30 seconds)
+- GitHub Actions automatically processes your post
+- It checks the access code (then hides it for security)
+- Extracts your images automatically
+- Adds today's date automatically
+- Updates the website
+- You'll get a ✅ comment when it's done
 
 ### 6. Done!
-Your post is now live! The website updates within 1-2 minutes.
+Your post is now live! Refresh the website to see it.
 
 ## Example
 
-**Password**: `yukisan2024`  
-**Date**: `29-10-2025`  
-**Content**: `Having fun with my guild!`  
-**Image URLs**:
+**Access Code**: `iloveyuki`  
+**Content**: 
 ```
-https://github.com/user-attachments/assets/abc123.png
-https://github.com/user-attachments/assets/def456.png
+Having fun with my guild!
+[Just drag and drop your images here - no need to do anything else!]
 ```
 
-## Changing the Password
+## What Happens Automatically
 
-To change the password, edit `.github/workflows/create-post.yml` and find this line:
+✅ **Date** - Uses today's date (DD-MM-YYYY)  
+✅ **Images** - Extracted from your drag-and-drop uploads  
+✅ **Access Code** - Hidden after verification for security  
+✅ **Website Update** - Posts appear within 1-2 minutes
+
+## Changing the Access Code
+
+To change the access code, edit `.github/workflows/create-post.yml` and find this line:
 ```javascript
-const CORRECT_PASSWORD = 'yukisan2024';
+const CORRECT_PASSWORD = 'iloveyuki';
 ```
-Change it to your new password.
+Change it to your new access code.
 
 ## Benefits of This System
 
 ✅ **100% Free** - Uses GitHub's free features  
 ✅ **No Server Needed** - Everything runs on GitHub  
-✅ **Easy to Use** - Simple web form  
+✅ **Super Easy** - Just drag & drop images!  
 ✅ **Image Hosting** - GitHub hosts your images for free  
-✅ **Password Protected** - Only people with the password can post  
+✅ **Password Protected** - Only people with the access code can post  
 ✅ **Automatic** - No manual file editing needed  
 ✅ **Mobile Friendly** - Post from your phone!
