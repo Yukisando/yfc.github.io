@@ -11,12 +11,12 @@ Visit: https://github.com/Yukisando/yfc.github.io/issues
 You'll see a template called "📝 New Post" - click "Get started"
 
 ### 3. Fill in the Form
+- **Title**: Replace "[POST] " with your post text (e.g., "[POST] Off to work!")
 - **Access Code**: `iloveyuki` (required - hidden immediately for security)
 - **Content**: 
-  - Write your post text
   - **Drag and drop images directly into the Content box!**
   - GitHub automatically uploads them for you
-  - No need to copy/paste URLs anymore!
+  - You can leave the content field with just images, or add additional text if you want
 
 ### 4. Submit the Issue
 Click "Submit new issue"
@@ -35,17 +35,18 @@ Your post is now live! Refresh the website to see it.
 
 ## Example
 
+**Title**: `[POST] Off to work!`  
 **Access Code**: `iloveyuki`  
 **Content**: 
 ```
-Having fun with my guild!
-[Just drag and drop your images here - no need to do anything else!]
+[Just drag and drop your images here!]
 ```
 
 ## What Happens Automatically
 
 ✅ **Date** - Uses today's date (DD-MM-YYYY)  
-✅ **Images** - Extracted from your drag-and-drop uploads  
+✅ **Post Text** - Taken from the issue title (after "[POST]")  
+✅ **Images** - Extracted from your drag-and-drop uploads in the Content field  
 ✅ **Access Code** - Hidden after verification for security  
 ✅ **Website Update** - Posts appear within 1-2 minutes
 

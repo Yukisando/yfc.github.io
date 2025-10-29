@@ -23,13 +23,14 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const body = issue.body;
+            const issueTitle = issue.title;
             
             // Parse the issue body to extract form data
             const accessCodeMatch = body.match(/### Access Code\s*\n\s*(.+)/);
             const contentMatch = body.match(/### Content\s*\n\s*([\s\S]+?)(?=\n###|$)/);
             
             const accessCode = accessCodeMatch ? accessCodeMatch[1].trim() : '';
-            let content = contentMatch ? contentMatch[1].trim() : '';
+            let contentField = contentMatch ? contentMatch[1].trim() : '';
             
             // IMMEDIATELY hide the access code for security
             const cleanedBody = body.replace(/### Access Code\s*\n\s*.+/, '### Access Code\n\n🔒 *Access code hidden for security*');
@@ -70,17 +71,20 @@ jobs:
               return;
             }
             
-            // Extract image URLs from content (GitHub automatically uploads images)
+            // Extract the post title from issue title (remove "[POST] " prefix)
+            const postTitle = issueTitle.replace(/^\[POST\]\s*/, '').trim();
+            
+            // Extract image URLs from content field (GitHub automatically uploads images)
             const imageRegex = /!\[.*?\]\((https:\/\/[^\)]+)\)/g;
             const imageUrls = [];
             let match;
             
-            while ((match = imageRegex.exec(content)) !== null) {
+            while ((match = imageRegex.exec(contentField)) !== null) {
               imageUrls.push(match[1]);
             }
             
-            // Remove markdown image syntax from content, leaving just text
-            content = content.replace(/!\[.*?\]\(https:\/\/[^\)]+\)/g, '').trim();
+            // Use the issue title as the post content
+            const content = postTitle;
             
             // Create new post object
             const newPost = {
