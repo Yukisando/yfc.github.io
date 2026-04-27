@@ -207,10 +207,19 @@ function scrollToPosition() {
 
 window.addEventListener("scroll", function () {
   const button = document.getElementById("scrollButton");
-  button.innerHTML =
-    window.innerHeight + window.scrollY >= document.body.offsetHeight
-      ? "⬆"
-      : "⬇";
+  if (!button) return;
+  const atBottom =
+    window.innerHeight + window.scrollY >= document.body.offsetHeight - 4;
+  button.innerHTML = atBottom ? "⬆" : "⬇";
+
+  // Show only when there's meaningful scroll distance available
+  const canScroll = document.body.offsetHeight > window.innerHeight + 200;
+  const scrolled = window.scrollY > 200;
+  if (canScroll && (scrolled || atBottom)) {
+    button.classList.add("visible");
+  } else {
+    button.classList.remove("visible");
+  }
 });
 
 // Modal functions
@@ -307,3 +316,147 @@ document.addEventListener("keydown", function (event) {
 });
 
 fetchPosts();
+
+// ==========================
+// Playlist + welcome chime
+// ==========================
+const PLAYLIST_TRACKS = [
+  "assets/playlist/04. Elwynn Forest.mp3",
+  "assets/playlist/30. Tavern- The Alliance (Lion's Pride).mp3",
+  "assets/playlist/31. Capital of the Humans.mp3",
+  "assets/playlist/58. Dun Morogh.mp3",
+  "assets/playlist/68. Elwynn Forest.mp3",
+];
+const WELCOME_CHIME = "assets/69. Quest Complete.mp3";
+
+const playlistAudio = new Audio();
+playlistAudio.preload = "none";
+playlistAudio.volume = 0.5;
+
+// Shuffle playlist order on load for variety
+let playlistOrder = PLAYLIST_TRACKS.map((_, i) => i).sort(
+  () => Math.random() - 0.5
+);
+let playlistIndex = 0;
+let isPlaylistPlaying = false;
+
+function getTrackName(path) {
+  const file = path.split("/").pop() || path;
+  return decodeURIComponent(file).replace(/\.mp3$/i, "");
+}
+
+function updatePlaylistUI() {
+  const btn = document.getElementById("playlistPlayPause");
+  if (!btn) return;
+  if (isPlaylistPlaying) {
+    btn.textContent = "⏸";
+    btn.classList.add("playing");
+    btn.title = "Pause playlist";
+  } else {
+    btn.textContent = "▶";
+    btn.classList.remove("playing");
+    btn.title = "Play playlist";
+  }
+}
+
+let trackToastTimer = null;
+function showTrackToast(name) {
+  const toast = document.getElementById("trackToast");
+  if (!toast) return;
+  toast.textContent = "♪ " + name;
+  toast.classList.add("visible");
+  if (trackToastTimer) clearTimeout(trackToastTimer);
+  trackToastTimer = setTimeout(() => {
+    toast.classList.remove("visible");
+  }, 3500);
+}
+
+function loadCurrentTrack() {
+  const src = PLAYLIST_TRACKS[playlistOrder[playlistIndex]];
+  playlistAudio.src = encodeURI(src);
+}
+
+function playCurrentTrack() {
+  loadCurrentTrack();
+  playlistAudio
+    .play()
+    .then(() => {
+      isPlaylistPlaying = true;
+      updatePlaylistUI();
+      showTrackToast(getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]));
+    })
+    .catch((err) => {
+      console.warn("Playlist play blocked:", err);
+      isPlaylistPlaying = false;
+      updatePlaylistUI();
+    });
+}
+
+function togglePlaylist() {
+  if (isPlaylistPlaying) {
+    playlistAudio.pause();
+    isPlaylistPlaying = false;
+    updatePlaylistUI();
+  } else {
+    if (!playlistAudio.src) {
+      playCurrentTrack();
+    } else {
+      playlistAudio
+        .play()
+        .then(() => {
+          isPlaylistPlaying = true;
+          updatePlaylistUI();
+        })
+        .catch((err) => console.warn("Playlist resume blocked:", err));
+    }
+  }
+}
+
+function nextTrack() {
+  playlistIndex = (playlistIndex + 1) % playlistOrder.length;
+  // Reshuffle when looping back to start
+  if (playlistIndex === 0) {
+    playlistOrder = PLAYLIST_TRACKS.map((_, i) => i).sort(
+      () => Math.random() - 0.5
+    );
+  }
+  playCurrentTrack();
+}
+
+playlistAudio.addEventListener("ended", nextTrack);
+playlistAudio.addEventListener("pause", () => {
+  if (!playlistAudio.ended) {
+    isPlaylistPlaying = !playlistAudio.paused;
+    updatePlaylistUI();
+  }
+});
+
+// Welcome chime: play once per browser session on first arrival.
+function playWelcomeChime() {
+  if (sessionStorage.getItem("yfc-welcomed")) return;
+  const chime = new Audio(encodeURI(WELCOME_CHIME));
+  chime.volume = 0.6;
+  const attempt = chime.play();
+  if (attempt && typeof attempt.then === "function") {
+    attempt
+      .then(() => {
+        sessionStorage.setItem("yfc-welcomed", "1");
+      })
+      .catch(() => {
+        // Autoplay blocked — retry on first user interaction
+        const retry = () => {
+          chime
+            .play()
+            .then(() => sessionStorage.setItem("yfc-welcomed", "1"))
+            .catch(() => {});
+          window.removeEventListener("pointerdown", retry);
+          window.removeEventListener("keydown", retry);
+        };
+        window.addEventListener("pointerdown", retry, { once: true });
+        window.addEventListener("keydown", retry, { once: true });
+      });
+  }
+}
+
+playWelcomeChime();
+updatePlaylistUI();

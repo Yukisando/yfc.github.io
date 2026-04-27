@@ -31,25 +31,50 @@
         <span class="title-short">YFC</span>
       </h1>
 
-      <!-- Scroll button title -->
-      <button
-        class="scroll-button"
-        id="scrollButton"
-        onclick="scrollToPosition()"
-      >
-        ⬇
-      </button>
-
-      <!-- New Post button - Opens GitHub Issues -->
-      <a
-        href="https://github.com/Yukisando/yfc.github.io/issues/new?template=new-post.yml"
-        target="_blank"
-        class="new-post-button"
-        title="Create New Post"
-      >
-        +
-      </a>
+      <!-- Playlist controls -->
+      <div class="playlist-controls" id="playlistControls">
+        <button
+          class="playlist-button"
+          id="playlistPlayPause"
+          title="Play playlist"
+          onclick="togglePlaylist()"
+        >
+          ▶
+        </button>
+        <button
+          class="playlist-button"
+          id="playlistNext"
+          title="Next track"
+          onclick="nextTrack()"
+        >
+          ⏭
+        </button>
+      </div>
     </div>
+
+    <!-- Now-playing toast -->
+    <div id="trackToast" class="track-toast" aria-live="polite"></div>
+
+    <!-- Floating New Post button - Opens GitHub Issues -->
+    <a
+      href="https://github.com/Yukisando/yfc.github.io/issues/new?template=new-post.yml"
+      target="_blank"
+      class="new-post-button"
+      title="Create New Post"
+      aria-label="Create New Post"
+    >
+      +
+    </a>
+
+    <!-- Floating scroll button (toggles top/bottom) -->
+    <button
+      class="scroll-button"
+      id="scrollButton"
+      onclick="scrollToPosition()"
+      aria-label="Scroll"
+    >
+      ⬇
+    </button>
 
     <!-- Posts will be dynamically inserted here -->
     <div id="posts-container" class="grid-container"></div>
