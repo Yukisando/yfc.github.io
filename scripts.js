@@ -534,6 +534,15 @@ function updatePlaylistUI() {
   }
 }
 
+const ORIGINAL_DOC_TITLE = document.title;
+function setTrackTitle(name) {
+  if (name) {
+    document.title = "♪ " + name;
+  } else {
+    document.title = ORIGINAL_DOC_TITLE;
+  }
+}
+
 let trackToastTimer = null;
 function showTrackToast(name) {
   const toast = document.getElementById("trackToast");
@@ -559,7 +568,9 @@ function playCurrentTrack() {
     .then(() => {
       isPlaylistPlaying = true;
       updatePlaylistUI();
-      showTrackToast(getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]));
+      const trackName = getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]);
+      showTrackToast(trackName);
+      setTrackTitle(trackName);
     })
     .catch((err) => {
       console.warn("Playlist play blocked:", err);
@@ -574,6 +585,7 @@ function togglePlaylist() {
     playlistAudio.pause();
     isPlaylistPlaying = false;
     updatePlaylistUI();
+    setTrackTitle(null);
   } else {
     if (!playlistAudio.src) {
       playCurrentTrack();
@@ -583,6 +595,7 @@ function togglePlaylist() {
         .then(() => {
           isPlaylistPlaying = true;
           updatePlaylistUI();
+          setTrackTitle(getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]));
         })
         .catch((err) => console.warn("Playlist resume blocked:", err));
     }
@@ -602,6 +615,7 @@ playlistAudio.addEventListener("pause", () => {
   if (!playlistAudio.ended) {
     isPlaylistPlaying = !playlistAudio.paused;
     updatePlaylistUI();
+    if (!isPlaylistPlaying) setTrackTitle(null);
   }
 });
 
