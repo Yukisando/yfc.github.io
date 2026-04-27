@@ -347,28 +347,59 @@ function closePostModal() {
 
 function navigateModal(direction) {
   if (CURRENT_MODAL_INDEX < 0 || !ALL_POSTS.length) return;
+
+  // First: cycle within the current post's carousel if there is one
+  const modal = document.getElementById("postModal");
+  const carousel = modal && modal.querySelector(".carousel");
+  if (carousel) {
+    const slides = carousel.querySelectorAll(".carousel-slide");
+    const currentIndex = Array.from(slides).findIndex((s) =>
+      s.classList.contains("active")
+    );
+    const lastIndex = slides.length - 1;
+    const goingForward = direction > 0;
+    const goingBackward = direction < 0;
+    const atEnd = goingForward && currentIndex === lastIndex;
+    const atStart = goingBackward && currentIndex === 0;
+    if (!atEnd && !atStart) {
+      changeSlide(carousel.id, direction);
+      return;
+    }
+    // Falling off the carousel: advance to the next/prev post.
+    // The new post should start on the opposite end so navigation feels continuous.
+  }
+
   const next = (CURRENT_MODAL_INDEX + direction + ALL_POSTS.length) % ALL_POSTS.length;
   const nextPost = ALL_POSTS[next];
   // Preload the first media (if it's an image) so the modal doesn't visibly
   // shrink to a tiny size and then grow once the new image arrives.
-  const firstSrc = nextPost.images && nextPost.images[0];
+  const firstImageIndex = direction < 0 && nextPost.images && nextPost.images.length > 1
+    ? nextPost.images.length - 1
+    : 0;
+  const firstSrc = nextPost.images && nextPost.images[firstImageIndex];
+  const openWithStart = () => {
+    openPostModal(nextPost);
+    // If we navigated backward into a multi-image post, jump to its last slide
+    if (direction < 0 && nextPost.images && nextPost.images.length > 1) {
+      const c = document.querySelector("#postModal .carousel");
+      if (c) goToSlide(c.id, nextPost.images.length - 1);
+    }
+  };
   if (firstSrc && !isVideoUrl(firstSrc)) {
     const preload = new Image();
     let done = false;
     const finish = () => {
       if (done) return;
       done = true;
-      openPostModal(nextPost);
+      openWithStart();
     };
     preload.onload = finish;
     preload.onerror = finish;
     preload.src = firstSrc;
-    // Safety net: don't wait forever if the network stalls
     setTimeout(finish, 600);
-    // If it's already cached, the load may fire synchronously
     if (preload.complete) finish();
   } else {
-    openPostModal(nextPost);
+    openWithStart();
   }
 }
 
