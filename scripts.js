@@ -155,10 +155,6 @@ function createPost(post) {
     ) {
       return;
     }
-    // Don't open modal on mobile (screens smaller than 600px)
-    if (window.innerWidth < 600) {
-      return;
-    }
     openPostModal(post);
   });
 
@@ -181,6 +177,7 @@ function changeSlide(carouselId, direction) {
 
   slides[currentIndex].classList.add("active");
   dots[currentIndex].classList.add("active");
+  if (carousel.closest(".post-modal")) adjustModalCaption();
 }
 
 function goToSlide(carouselId, index) {
@@ -193,6 +190,7 @@ function goToSlide(carouselId, index) {
 
   slides[index].classList.add("active");
   dots[index].classList.add("active");
+  if (carousel.closest(".post-modal")) adjustModalCaption();
 }
 
 function scrollToPosition() {
@@ -226,9 +224,12 @@ window.addEventListener("scroll", function () {
 });
 
 // Modal functions
+let CURRENT_MODAL_INDEX = -1;
+
 function openPostModal(post) {
   const modal = document.getElementById("postModal");
   const modalContent = document.getElementById("modalPostContent");
+  CURRENT_MODAL_INDEX = ALL_POSTS.indexOf(post);
 
   let imagesHtml = "";
 
@@ -280,12 +281,52 @@ function openPostModal(post) {
 
   modalContent.innerHTML = `
         <h3>${post.date}</h3>
-        <div class="post-content">${post.content}</div>
+        <div class="post-content" title="${escapeAttr(post.content)}">${post.content}</div>
         ${imagesHtml}
     `;
 
-  modal.style.display = "block";
+  modal.style.display = "flex";
   document.body.style.overflow = "hidden"; // Prevent background scrolling
+  adjustModalCaption();
+}
+
+// Escape attribute values for safe use inside an HTML attribute
+function escapeAttr(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// Switch caption between overlay and below depending on the active media size
+function adjustModalCaption() {
+  const modalContent = document.querySelector(".post-modal-content");
+  if (!modalContent) return;
+  const media = modalContent.querySelector(
+    ".carousel-slide.active img, .carousel-slide.active video, #modalPostContent > .image-container img, #modalPostContent > .image-container video"
+  );
+  if (!media) {
+    modalContent.classList.remove("caption-below");
+    return;
+  }
+  const apply = () => {
+    const rect = media.getBoundingClientRect();
+    const w = rect.width || media.clientWidth || media.naturalWidth || media.videoWidth || 0;
+    const h = rect.height || media.clientHeight || media.naturalHeight || media.videoHeight || 0;
+    // If the rendered media is too small for an overlay caption, show caption below
+    const small = (h && h < 320) || (w && w < 480);
+    modalContent.classList.toggle("caption-below", !!small);
+  };
+  if (media.tagName === "VIDEO") {
+    if (media.readyState >= 1) apply();
+    else media.addEventListener("loadedmetadata", apply, { once: true });
+  } else {
+    if (media.complete && media.naturalWidth) apply();
+    else media.addEventListener("load", apply, { once: true });
+  }
+  // Recompute on resize while the modal is open
+  window.addEventListener("resize", apply, { passive: true });
 }
 
 function closePostModal() {
@@ -301,6 +342,34 @@ function closePostModal() {
 
   modal.style.display = "none";
   document.body.style.overflow = "auto"; // Re-enable scrolling
+  CURRENT_MODAL_INDEX = -1;
+}
+
+function navigateModal(direction) {
+  if (CURRENT_MODAL_INDEX < 0 || !ALL_POSTS.length) return;
+  const next = (CURRENT_MODAL_INDEX + direction + ALL_POSTS.length) % ALL_POSTS.length;
+  const nextPost = ALL_POSTS[next];
+  // Preload the first media (if it's an image) so the modal doesn't visibly
+  // shrink to a tiny size and then grow once the new image arrives.
+  const firstSrc = nextPost.images && nextPost.images[0];
+  if (firstSrc && !isVideoUrl(firstSrc)) {
+    const preload = new Image();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      openPostModal(nextPost);
+    };
+    preload.onload = finish;
+    preload.onerror = finish;
+    preload.src = firstSrc;
+    // Safety net: don't wait forever if the network stalls
+    setTimeout(finish, 600);
+    // If it's already cached, the load may fire synchronously
+    if (preload.complete) finish();
+  } else {
+    openPostModal(nextPost);
+  }
 }
 
 // Close modal when clicking outside content
@@ -311,10 +380,21 @@ window.onclick = function (event) {
   }
 };
 
-// Close modal with Escape key
+// Keyboard navigation for the modal
 document.addEventListener("keydown", function (event) {
+  const modal = document.getElementById("postModal");
+  const modalOpen = modal && modal.style.display !== "none" && modal.style.display !== "";
   if (event.key === "Escape") {
-    closePostModal();
+    if (modalOpen) closePostModal();
+    return;
+  }
+  if (!modalOpen) return;
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    navigateModal(1);
+  } else if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    navigateModal(-1);
   }
 });
 
