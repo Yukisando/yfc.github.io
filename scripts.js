@@ -320,29 +320,92 @@ fetchPosts();
 // ==========================
 // Playlist + welcome chime
 // ==========================
-const PLAYLIST_TRACKS = [
+const PLAYLIST_REPO = "Yukisando/yfc.github.io";
+const PLAYLIST_DIR = "assets/playlist";
+const PLAYLIST_BRANCH = "main";
+
+// Fallback list (used if the GitHub API is unreachable / rate-limited)
+const PLAYLIST_FALLBACK = [
   "assets/playlist/04. Elwynn Forest.mp3",
   "assets/playlist/30. Tavern- The Alliance (Lion's Pride).mp3",
   "assets/playlist/31. Capital of the Humans.mp3",
   "assets/playlist/58. Dun Morogh.mp3",
   "assets/playlist/68. Elwynn Forest.mp3",
 ];
+
+const AUDIO_EXTS = [".mp3", ".ogg", ".wav", ".m4a", ".aac", ".flac", ".webm"];
+const PLAYLIST_CACHE_KEY = "yfc-playlist";
+const PLAYLIST_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
+
+let PLAYLIST_TRACKS = [];
 const WELCOME_CHIME = "assets/69. Quest Complete.mp3";
 
 const playlistAudio = new Audio();
 playlistAudio.preload = "none";
 playlistAudio.volume = 0.5;
 
-// Shuffle playlist order on load for variety
-let playlistOrder = PLAYLIST_TRACKS.map((_, i) => i).sort(
-  () => Math.random() - 0.5
-);
+let playlistOrder = [];
 let playlistIndex = 0;
 let isPlaylistPlaying = false;
 
+function isAudioFile(name) {
+  const lower = name.toLowerCase();
+  return AUDIO_EXTS.some((ext) => lower.endsWith(ext));
+}
+
+async function loadPlaylistTracks() {
+  // Try cached list first
+  try {
+    const cached = JSON.parse(localStorage.getItem(PLAYLIST_CACHE_KEY) || "null");
+    if (
+      cached &&
+      Array.isArray(cached.data) &&
+      cached.data.length > 0 &&
+      Date.now() - cached.timestamp < PLAYLIST_CACHE_TTL
+    ) {
+      PLAYLIST_TRACKS = cached.data;
+    }
+  } catch (_) {}
+
+  // Refresh from GitHub Contents API
+  try {
+    const url = `https://api.github.com/repos/${PLAYLIST_REPO}/contents/${PLAYLIST_DIR}?ref=${PLAYLIST_BRANCH}`;
+    const res = await fetch(url, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (res.ok) {
+      const items = await res.json();
+      const tracks = items
+        .filter((it) => it.type === "file" && isAudioFile(it.name))
+        .map((it) => `${PLAYLIST_DIR}/${it.name}`)
+        .sort();
+      if (tracks.length > 0) {
+        PLAYLIST_TRACKS = tracks;
+        localStorage.setItem(
+          PLAYLIST_CACHE_KEY,
+          JSON.stringify({ data: tracks, timestamp: Date.now() })
+        );
+      }
+    }
+  } catch (err) {
+    console.warn("Playlist directory listing failed, using fallback:", err);
+  }
+
+  if (PLAYLIST_TRACKS.length === 0) PLAYLIST_TRACKS = PLAYLIST_FALLBACK.slice();
+
+  reshuffle();
+}
+
+function reshuffle() {
+  playlistOrder = PLAYLIST_TRACKS.map((_, i) => i).sort(
+    () => Math.random() - 0.5
+  );
+  playlistIndex = 0;
+}
+
 function getTrackName(path) {
   const file = path.split("/").pop() || path;
-  return decodeURIComponent(file).replace(/\.mp3$/i, "");
+  return decodeURIComponent(file).replace(/\.[^.]+$/, "");
 }
 
 function updatePlaylistUI() {
@@ -377,6 +440,7 @@ function loadCurrentTrack() {
 }
 
 function playCurrentTrack() {
+  if (PLAYLIST_TRACKS.length === 0) return;
   loadCurrentTrack();
   playlistAudio
     .play()
@@ -393,6 +457,7 @@ function playCurrentTrack() {
 }
 
 function togglePlaylist() {
+  if (PLAYLIST_TRACKS.length === 0) return;
   if (isPlaylistPlaying) {
     playlistAudio.pause();
     isPlaylistPlaying = false;
@@ -413,13 +478,10 @@ function togglePlaylist() {
 }
 
 function nextTrack() {
+  if (PLAYLIST_TRACKS.length === 0) return;
   playlistIndex = (playlistIndex + 1) % playlistOrder.length;
   // Reshuffle when looping back to start
-  if (playlistIndex === 0) {
-    playlistOrder = PLAYLIST_TRACKS.map((_, i) => i).sort(
-      () => Math.random() - 0.5
-    );
-  }
+  if (playlistIndex === 0) reshuffle();
   playCurrentTrack();
 }
 
@@ -460,3 +522,4 @@ function playWelcomeChime() {
 
 playWelcomeChime();
 updatePlaylistUI();
+loadPlaylistTracks();
