@@ -494,34 +494,18 @@ playlistAudio.addEventListener("pause", () => {
   }
 });
 
-// Welcome chime: play once per browser session on first arrival.
-function playWelcomeChime() {
-  if (sessionStorage.getItem("yfc-welcomed")) return;
-  const chime = new Audio(encodeURI(WELCOME_CHIME));
-  chime.volume = 0.6;
-  const attempt = chime.play();
-  if (attempt && typeof attempt.then === "function") {
-    attempt
-      .then(() => {
-        sessionStorage.setItem("yfc-welcomed", "1");
-      })
-      .catch(() => {
-        // Autoplay blocked — retry on first user interaction
-        const retry = () => {
-          chime
-            .play()
-            .then(() => sessionStorage.setItem("yfc-welcomed", "1"))
-            .catch(() => {});
-          window.removeEventListener("pointerdown", retry);
-          window.removeEventListener("keydown", retry);
-        };
-        window.addEventListener("pointerdown", retry, { once: true });
-        window.addEventListener("keydown", retry, { once: true });
-      });
-  }
+// Chime played when user opens the gallery.
+function playGalleryChime() {
+  try {
+    const chime = new Audio(encodeURI(WELCOME_CHIME));
+    chime.volume = 0.6;
+    const attempt = chime.play();
+    if (attempt && typeof attempt.catch === "function") {
+      attempt.catch(() => {});
+    }
+  } catch (_) {}
 }
 
-playWelcomeChime();
 updatePlaylistUI();
 loadPlaylistTracks();
 
@@ -686,4 +670,10 @@ function initDashboard() {
   renderPostCount();
   fetchCharacterStats();
   applyRoute();
+
+  // Play chime when user opens the gallery tile
+  const galleryTile = document.getElementById("screenshotOfTheDay");
+  if (galleryTile) {
+    galleryTile.addEventListener("click", playGalleryChime);
+  }
 }
