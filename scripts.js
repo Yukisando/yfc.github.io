@@ -2,25 +2,23 @@
 const CACHE_NAME = "yfc-cache-v1";
 const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours
 
+let ALL_POSTS = [];
+
 async function fetchPosts() {
   try {
-    // Try to get cached data first
-    const cachedData = getCachedData("posts");
-    if (cachedData) {
-      cachedData.reverse().forEach(createPost);
-      return;
+    let posts = getCachedData("posts");
+    if (!posts) {
+      const response = await fetch("posts.json");
+      posts = await response.json();
+      setCachedData("posts", posts);
     }
-
-    const response = await fetch("posts.json");
-    const posts = await response.json();
-
-    // Cache the posts data
-    setCachedData("posts", posts);
-
-    // Reverse to show newest first (left to right, top to bottom like a comic)
-    posts.reverse().forEach(createPost);
+    // Newest first
+    ALL_POSTS = posts.slice().reverse();
+    ALL_POSTS.forEach(createPost);
+    initDashboard();
   } catch (error) {
     console.error("Error fetching posts:", error);
+    initDashboard();
   }
 }
 
@@ -208,9 +206,14 @@ function scrollToPosition() {
 window.addEventListener("scroll", function () {
   const button = document.getElementById("scrollButton");
   if (!button) return;
+  // Hide on home view
+  if (document.body.classList.contains("view-home")) {
+    button.classList.remove("visible");
+    return;
+  }
   const atBottom =
     window.innerHeight + window.scrollY >= document.body.offsetHeight - 4;
-  button.innerHTML = atBottom ? "⬆" : "⬇";
+  button.classList.toggle("at-bottom", atBottom);
 
   // Show only when there's meaningful scroll distance available
   const canScroll = document.body.offsetHeight > window.innerHeight + 200;
@@ -412,11 +415,9 @@ function updatePlaylistUI() {
   const btn = document.getElementById("playlistPlayPause");
   if (!btn) return;
   if (isPlaylistPlaying) {
-    btn.textContent = "⏸";
     btn.classList.add("playing");
     btn.title = "Pause playlist";
   } else {
-    btn.textContent = "▶";
     btn.classList.remove("playing");
     btn.title = "Play playlist";
   }
@@ -523,3 +524,166 @@ function playWelcomeChime() {
 playWelcomeChime();
 updatePlaylistUI();
 loadPlaylistTracks();
+
+// ==========================
+// Dashboard, routing, stats
+// ==========================
+function isImageUrl(url) {
+  const exts = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
+  const lower = (url || "").toLowerCase();
+  return exts.some((e) => lower.includes(e));
+}
+
+function dayIndex() {
+  // Stable per-day integer (UTC)
+  const now = new Date();
+  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
+  const diff = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - start;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function pickScreenshotOfTheDay() {
+  if (!ALL_POSTS.length) return null;
+  // Build flat list of (post, image) for image-only entries
+  const candidates = [];
+  ALL_POSTS.forEach((p) => {
+    (p.images || []).forEach((src) => {
+      if (isImageUrl(src)) candidates.push({ post: p, src });
+    });
+  });
+  if (!candidates.length) return null;
+  return candidates[dayIndex() % candidates.length];
+}
+
+function renderScreenshotOfTheDay() {
+  const img = document.getElementById("sotdImage");
+  if (!img) return;
+  const pick = pickScreenshotOfTheDay();
+  if (!pick) return;
+  img.addEventListener("load", () => img.classList.add("loaded"), { once: true });
+  img.src = pick.src;
+}
+
+function renderPostCount() {
+  const el = document.getElementById("postCount");
+  if (el) el.textContent = ALL_POSTS.length;
+}
+
+// --- Routing ---
+function applyRoute() {
+  const hash = (location.hash || "").toLowerCase();
+  const isGallery = hash.startsWith("#/gallery");
+  document.body.classList.toggle("view-gallery", isGallery);
+  document.body.classList.toggle("view-home", !isGallery);
+  // Reset scroll on view change
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  // Hide scroll button when on home (no need)
+  const sb = document.getElementById("scrollButton");
+  if (sb && !isGallery) sb.classList.remove("visible");
+}
+window.addEventListener("hashchange", applyRoute);
+
+// --- Character stats via Raider.IO (CORS-friendly, no auth) ---
+const STATS_CACHE_KEY = "yfc-char-stats";
+const STATS_CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
+
+async function fetchCharacterStats() {
+  const list = document.getElementById("charStatsList");
+  const source = document.getElementById("statsSource");
+  if (!list) return;
+
+  // Try cache first
+  try {
+    const cached = JSON.parse(localStorage.getItem(STATS_CACHE_KEY) || "null");
+    if (cached && cached.data && Date.now() - cached.timestamp < STATS_CACHE_TTL) {
+      renderStats(cached.data);
+    }
+  } catch (_) {}
+
+  try {
+    const url =
+      "https://raider.io/api/v1/characters/profile" +
+      "?region=eu&realm=dalaran&name=" +
+      encodeURIComponent("Yükisan") +
+      "&fields=gear,mythic_plus_scores_by_season:current,raid_progression,guild,covenant,active_spec_name";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    localStorage.setItem(
+      STATS_CACHE_KEY,
+      JSON.stringify({ data, timestamp: Date.now() })
+    );
+    renderStats(data);
+    if (source) source.textContent = "Live data via Raider.IO · updated " + new Date().toLocaleString();
+  } catch (err) {
+    console.warn("Stats fetch failed:", err);
+    if (!list.querySelector("li:not(.stats-loading)")) {
+      list.innerHTML =
+        '<li class="stats-error">Could not load live stats. Check the <a href="https://worldofwarcraft.blizzard.com/en-gb/character/eu/dalaran/y%C3%BCkisan" target="_blank" rel="noopener">Armory</a>.</li>';
+    }
+  }
+}
+
+function statRow(label, value) {
+  if (value === undefined || value === null || value === "") return "";
+  return (
+    '<li><span class="stat-label">' +
+    label +
+    '</span><span class="stat-value">' +
+    value +
+    "</span></li>"
+  );
+}
+
+function bestRaidProgress(rp) {
+  if (!rp || typeof rp !== "object") return null;
+  // Pick the most recent raid (last key)
+  const keys = Object.keys(rp);
+  if (!keys.length) return null;
+  const key = keys[keys.length - 1];
+  const r = rp[key];
+  const name = key
+    .split("-")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(" ");
+  return { name, summary: r.summary || "" };
+}
+
+function renderStats(d) {
+  const list = document.getElementById("charStatsList");
+  if (!list) return;
+
+  const ilvl = d.gear && d.gear.item_level_equipped;
+  const mScore =
+    d.mythic_plus_scores_by_season &&
+    d.mythic_plus_scores_by_season[0] &&
+    d.mythic_plus_scores_by_season[0].scores &&
+    d.mythic_plus_scores_by_season[0].scores.all;
+  const raid = bestRaidProgress(d.raid_progression);
+  const guild = d.guild && d.guild.name;
+  const spec = d.active_spec_name;
+  const cls = d.class;
+  const race = d.race;
+
+  const html = [
+    statRow("Item Level", ilvl ? Math.round(ilvl) : null),
+    statRow("Mythic+ Score", mScore ? Math.round(mScore) : null),
+    raid ? statRow(raid.name, raid.summary) : "",
+    statRow("Spec", spec && cls ? spec + " " + cls : spec || cls),
+    statRow("Race", race),
+    statRow("Guild", guild),
+  ]
+    .filter(Boolean)
+    .join("");
+
+  list.innerHTML =
+    html ||
+    '<li class="stats-error">No stats available.</li>';
+}
+
+function initDashboard() {
+  renderScreenshotOfTheDay();
+  renderPostCount();
+  fetchCharacterStats();
+  applyRoute();
+}

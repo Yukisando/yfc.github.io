@@ -25,10 +25,12 @@
         <img src="assets/yuki_bg.png" alt="WoW Armory" width="60" />
       </a>
 
-      <!-- Navbar title -->
+      <!-- Navbar title (click to go home) -->
       <h1 id="title">
-        <span class="title-full">Yükisan Fan Club</span>
-        <span class="title-short">YFC</span>
+        <a href="#/" class="title-link">
+          <span class="title-full">Yükisan Fan Club</span>
+          <span class="title-short">YFC</span>
+        </a>
       </h1>
 
       <!-- Playlist controls -->
@@ -37,17 +39,20 @@
           class="playlist-button"
           id="playlistPlayPause"
           title="Play playlist"
+          aria-label="Play playlist"
           onclick="togglePlaylist()"
         >
-          ▶
+          <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
         </button>
         <button
           class="playlist-button"
           id="playlistNext"
           title="Next track"
+          aria-label="Next track"
           onclick="nextTrack()"
         >
-          ⏭
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l8.5 6L6 18V6zm10 0h2v12h-2z"/></svg>
         </button>
       </div>
     </div>
@@ -73,8 +78,45 @@
       onclick="scrollToPosition()"
       aria-label="Scroll"
     >
-      ⬇
+      <svg class="icon icon-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16.5l-7-7 1.4-1.4L12 13.7l5.6-5.6L19 9.5z"/></svg>
+      <svg class="icon icon-up" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7.5l7 7-1.4 1.4L12 10.3l-5.6 5.6L5 14.5z"/></svg>
     </button>
+
+    <!-- Bento Dashboard (home view) -->
+    <main id="dashboard" class="dashboard">
+      <div class="bento-grid">
+        <a class="bento-tile bento-gallery" id="screenshotOfTheDay" href="#/gallery" aria-label="Browse all posts">
+          <div class="sotd-bg">
+            <div class="image-placeholder"></div>
+            <img id="sotdImage" alt="" class="post-image lazy-load" />
+          </div>
+          <div class="bento-tile-inner">
+            <span class="bento-eyebrow">Gallery</span>
+            <h2>Browse all posts</h2>
+            <div class="bento-stat"><span id="postCount">—</span><small>posts</small></div>
+            <span class="bento-cta">Open gallery →</span>
+          </div>
+        </a>
+
+        <a class="bento-tile bento-armory"
+           href="https://worldofwarcraft.blizzard.com/en-gb/character/eu/dalaran/y%C3%BCkisan"
+           target="_blank" rel="noopener">
+          <span class="bento-eyebrow">Armory</span>
+          <h2>Yükisan</h2>
+          <p class="bento-sub">Dalaran · EU</p>
+          <span class="bento-cta">Open Blizzard Armory →</span>
+        </a>
+
+        <div class="bento-tile bento-stats" id="charStats">
+          <span class="bento-eyebrow">Character</span>
+          <h2>Live Stats</h2>
+          <ul id="charStatsList" class="stats-list">
+            <li class="stats-loading">Loading…</li>
+          </ul>
+          <span class="bento-source" id="statsSource"></span>
+        </div>
+      </div>
+    </main>
 
     <!-- Posts will be dynamically inserted here -->
     <div id="posts-container" class="grid-container"></div>
