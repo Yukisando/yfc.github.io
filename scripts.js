@@ -429,6 +429,8 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
+const SNAPSHOT_URL = "assets/snapshots/snapshot";
+
 fetchPosts();
 
 // ==========================
@@ -692,102 +694,166 @@ function applyRoute() {
 }
 window.addEventListener("hashchange", applyRoute);
 
-// --- Character stats via Raider.IO (CORS-friendly, no auth) ---
-const STATS_CACHE_KEY = "yfc-char-stats";
-const STATS_CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
-
+// --- Character stats from in-game snapshot ---
 async function fetchCharacterStats() {
   const list = document.getElementById("charStatsList");
-  const source = document.getElementById("statsSource");
   if (!list) return;
 
-  // Try cache first
   try {
-    const cached = JSON.parse(localStorage.getItem(STATS_CACHE_KEY) || "null");
-    if (cached && cached.data && Date.now() - cached.timestamp < STATS_CACHE_TTL) {
-      renderStats(cached.data);
-    }
-  } catch (_) {}
-
-  try {
-    const url =
-      "https://raider.io/api/v1/characters/profile" +
-      "?region=eu&realm=dalaran&name=" +
-      encodeURIComponent("Yükisan") +
-      "&fields=gear,mythic_plus_scores_by_season:current,raid_progression,guild,covenant,active_spec_name";
-    const res = await fetch(url);
+    const res = await fetch(SNAPSHOT_URL, { cache: "no-cache" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    localStorage.setItem(
-      STATS_CACHE_KEY,
-      JSON.stringify({ data, timestamp: Date.now() })
-    );
-    renderStats(data);
-    if (source) source.textContent = "Live data via Raider.IO · updated " + new Date().toLocaleString();
+    renderSnapshotStats(data);
   } catch (err) {
-    console.warn("Stats fetch failed:", err);
-    if (!list.querySelector("li:not(.stats-loading)")) {
-      list.innerHTML =
-        '<li class="stats-error">Could not load live stats. Check the <a href="https://worldofwarcraft.blizzard.com/en-gb/character/eu/dalaran/y%C3%BCkisan" target="_blank" rel="noopener">Armory</a>.</li>';
-    }
+    console.warn("Snapshot fetch failed:", err);
+    list.innerHTML =
+      '<li class="stats-error">Could not load stats. Check the <a href="https://worldofwarcraft.blizzard.com/en-gb/character/eu/dalaran/y%C3%BCkisan" target="_blank" rel="noopener">Armory</a>.</li>';
   }
 }
 
-function statRow(label, value) {
+function fmt(n) {
+  if (n === undefined || n === null || n === "") return null;
+  if (typeof n === "number") return n.toLocaleString("en-US");
+  return String(n);
+}
+
+// "67 (Conjured Crystal Water)" -> { count: 67, name: "Conjured Crystal Water" }
+function parseCountName(s) {
+  if (typeof s !== "string") return null;
+  const m = s.match(/^(\d+)\s*\((.+)\)\s*$/);
+  if (!m) return null;
+  return { count: parseInt(m[1], 10), name: m[2] };
+}
+
+function statRow(label, value, flavor) {
   if (value === undefined || value === null || value === "") return "";
   return (
-    '<li><span class="stat-label">' +
-    label +
-    '</span><span class="stat-value">' +
-    value +
-    "</span></li>"
+    '<li><span class="stat-label">' + label +
+    '</span><span class="stat-value">' + value + '</span>' +
+    (flavor ? '<span class="stat-flavor">' + flavor + '</span>' : "") +
+    '</li>'
   );
 }
 
-function bestRaidProgress(rp) {
-  if (!rp || typeof rp !== "object") return null;
-  // Pick the most recent raid (last key)
-  const keys = Object.keys(rp);
-  if (!keys.length) return null;
-  const key = keys[keys.length - 1];
-  const r = rp[key];
-  const name = key
-    .split("-")
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(" ");
-  return { name, summary: r.summary || "" };
+function deathRow(label, value) {
+  if (value === undefined || value === null || value === 0) return "";
+  return (
+    '<li><span class="stat-label">' + label +
+    '</span><span class="stat-value">' + fmt(value) + '</span></li>'
+  );
 }
 
-function renderStats(d) {
+function renderSnapshotStats(d) {
   const list = document.getElementById("charStatsList");
   if (!list) return;
+  const stats = d.statistics || {};
+  const ch = d.character || {};
+  const deaths = stats["Deaths"] || {};
+  const travel = stats["Travel"] || {};
+  const social = stats["Social"] || {};
+  const quests = stats["Quests"] || {};
+  const wealth = stats["Wealth"] || {};
+  const consum = stats["Consumables"] || {};
+  const creatures = stats["Creatures"] || {};
+  const world = stats["World"] || {};
+  const kb = stats["Killing Blows"] || {};
+  const sec = stats["Secondary Skills"] || {};
+  const collections = d.collections || {};
+  const ach = d.achievements || {};
 
-  const ilvl = d.gear && d.gear.item_level_equipped;
-  const mScore =
-    d.mythic_plus_scores_by_season &&
-    d.mythic_plus_scores_by_season[0] &&
-    d.mythic_plus_scores_by_season[0].scores &&
-    d.mythic_plus_scores_by_season[0].scores.all;
-  const raid = bestRaidProgress(d.raid_progression);
-  const guild = d.guild && d.guild.name;
-  const spec = d.active_spec_name;
-  const cls = d.class;
-  const race = d.race;
+  // Title / sub
+  const title = document.getElementById("charStatsTitle");
+  const sub = document.getElementById("charStatsSub");
+  if (title && ch.name) title.textContent = ch.name;
+  if (sub) {
+    const bits = [];
+    if (ch.level) bits.push("Level " + ch.level);
+    if (ch.race) bits.push(ch.race);
+    if (ch.class) bits.push(ch.class);
+    if (ch.guild) bits.push("⟨" + ch.guild + "⟩");
+    sub.textContent = bits.join(" · ");
+  }
+
+  // --- Death hero ---
+  const total = deaths["Total deaths"];
+  const heroEl = document.getElementById("deathHero");
+  const heroNum = document.getElementById("deathHeroNumber");
+  const breakdown = document.getElementById("deathBreakdown");
+  if (heroEl && total != null) {
+    heroEl.hidden = false;
+    heroNum.textContent = fmt(total);
+    breakdown.innerHTML = [
+      deathRow("Falling", deaths["Deaths from falling"]),
+      deathRow("Drowning", deaths["Deaths from drowning"]),
+      deathRow("Fatigue", deaths["Deaths from fatigue"]),
+      deathRow("Fire & Lava", deaths["Deaths from fire and lava"]),
+      deathRow("In Dungeons", deaths["Total deaths in dungeons"]),
+      deathRow("In Raids", deaths["Total deaths in raids"]),
+      deathRow("Rebirthed by Druids", deaths["Rebirthed by druids"]),
+      deathRow("Rezzed by Priests", deaths["Resurrected by priests"]),
+      deathRow("Raised by DKs", deaths["Raised by death knights"]),
+      deathRow("Soulstoned", deaths["Resurrected by soulstones"]),
+    ].filter(Boolean).join("");
+  }
+
+  // --- Goofy stats ---
+  const goofyTitle = document.getElementById("goofyTitle");
+  if (goofyTitle) goofyTitle.hidden = false;
+
+  const elixir = parseCountName(consum["Elixir consumed most"]);
+  const food = parseCountName(consum["Food eaten most"]);
+  const beverage = parseCountName(consum["Beverage consumed most"]);
+  const portal = parseCountName(travel["Mage portal taken most"]);
 
   const html = [
-    statRow("Item Level", ilvl ? Math.round(ilvl) : null),
-    statRow("Mythic+ Score", mScore ? Math.round(mScore) : null),
-    raid ? statRow(raid.name, raid.summary) : "",
-    statRow("Spec", spec && cls ? spec + " " + cls : spec || cls),
-    statRow("Race", race),
-    statRow("Guild", guild),
-  ]
-    .filter(Boolean)
-    .join("");
+    statRow("Hearthed", fmt(travel["Number of times hearthed"])),
+    statRow("Mage Portals", fmt(travel["Mage Portals taken"]),
+      portal ? portal.name + " ×" + fmt(portal.count) : null),
+    statRow("Flight Paths", fmt(travel["Flight paths taken"])),
+    statRow("Summons", fmt(travel["Summons accepted"])),
 
-  list.innerHTML =
-    html ||
-    '<li class="stats-error">No stats available.</li>';
+    statRow("Quests Done", fmt(quests["Quests completed"])),
+    statRow("Quests Abandoned", fmt(quests["Quests abandoned"])),
+
+    statRow("Critters Killed", fmt(creatures["Critters killed"])),
+    statRow("Creatures Killed", fmt(creatures["Creatures killed"])),
+
+    statRow("Duels W / L",
+      (world["Duels won"] != null && world["Duels lost"] != null)
+        ? fmt(world["Duels won"]) + " / " + fmt(world["Duels lost"]) : null),
+
+    food ? statRow("Favourite Food",
+      food.name, "×" + fmt(food.count)) : "",
+    beverage ? statRow("Favourite Drink",
+      beverage.name, "×" + fmt(beverage.count)) : "",
+    elixir ? statRow("Most-used Elixir",
+      elixir.name, "×" + fmt(elixir.count)) : "",
+    statRow("Healthstones", fmt(consum["Healthstones used"])),
+    statRow("Bandages", fmt(consum["Bandages used"])),
+
+    statRow("Fish Caught", fmt(sec["Fish caught"])),
+    statRow("Auctions", fmt(wealth["Auctions posted"])),
+    statRow("Peak Gold",
+      wealth["Most gold ever owned"] ? wealth["Most gold ever owned"].split(" ")[0] + "g" : null,
+      "current: " + (d.money && d.money.gold != null ? fmt(d.money.gold) + "g" : "?")),
+
+    statRow("Mounts",
+      collections.mountsCollected != null
+        ? fmt(collections.mountsCollected) + " / " + fmt(collections.mountsTotal) : null),
+    statRow("Pets",
+      collections.petsCollected != null
+        ? fmt(collections.petsCollected) + " / " + fmt(collections.petsTotal) : null),
+    statRow("Toys", fmt(collections.toysCollected)),
+    statRow("Achievements", fmt(ach.points)),
+  ].filter(Boolean).join("");
+
+  list.innerHTML = html || '<li class="stats-error">No stats available.</li>';
+
+  const source = document.getElementById("statsSource");
+  if (source) {
+    const when = d.capturedAtIso ? new Date(d.capturedAtIso).toLocaleString() : "unknown";
+    source.textContent = "Snapshot captured " + when + " · addon v" + (d.addonVersion || "?");
+  }
 }
 
 function initDashboard() {

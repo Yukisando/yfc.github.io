@@ -109,7 +109,16 @@
 
         <div class="bento-tile bento-stats" id="charStats">
           <span class="bento-eyebrow">Character</span>
-          <h2>Live Stats</h2>
+          <h2 id="charStatsTitle">Yükisan</h2>
+          <p class="bento-sub" id="charStatsSub">Loading the rap sheet…</p>
+
+          <div class="death-hero" id="deathHero" hidden>
+            <div class="death-hero-number" id="deathHeroNumber">—</div>
+            <div class="death-hero-label">Total Deaths</div>
+            <ul class="death-breakdown" id="deathBreakdown"></ul>
+          </div>
+
+          <h3 class="stats-section-title" id="goofyTitle" hidden>Goofy Stats</h3>
           <ul id="charStatsList" class="stats-list">
             <li class="stats-loading">Loading…</li>
           </ul>

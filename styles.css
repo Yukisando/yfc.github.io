@@ -903,7 +903,7 @@ video.post-image {
     .bento-grid { grid-template-columns: repeat(8, 1fr); }
     .bento-gallery { grid-column: span 4; grid-row: span 2; }
     .bento-armory  { grid-column: span 4; }
-    .bento-stats   { grid-column: span 4; }
+    .bento-stats   { grid-column: span 8; }
 }
 
 .bento-tile {
@@ -991,10 +991,64 @@ a.bento-tile:hover, .bento-tile:hover {
 
 /* Stats list */
 .stats-list { list-style: none; padding: 0; margin: 12px 0 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-.stats-list li { background: rgba(250,200,0,0.06); border: 1px solid rgba(250,200,0,0.18); border-radius: 10px; padding: 10px 12px; text-align: left; }
-.stats-list .stat-label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #cccccc; }
-.stats-list .stat-value { display: block; font-size: 1.4rem; font-weight: bold; color: #fac800; margin-top: 2px; }
+.stats-list li { background: rgba(250,200,0,0.06); border: 1px solid rgba(250,200,0,0.18); border-radius: 10px; padding: 10px 12px; text-align: left; overflow: hidden; min-width: 0; }
+.stats-list .stat-label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #cccccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-list .stat-value { display: block; font-size: 1.4rem; font-weight: bold; color: #fac800; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stats-list .stats-loading, .stats-list .stats-error { color: #cccccc; font-style: italic; background: transparent; border: none; padding: 0; }
+.stats-list .stat-flavor { display: block; font-size: 0.7rem; color: #aaa; margin-top: 4px; font-style: italic; }
+
+/* Death hero block */
+.death-hero {
+    margin-top: 14px;
+    padding: 18px;
+    border-radius: 14px;
+    background:
+        radial-gradient(120% 120% at 50% 0%, rgba(220, 30, 30, 0.18), rgba(0,0,0,0) 60%),
+        linear-gradient(180deg, #1a1414 0%, #0f0a0a 100%);
+    border: 1px solid rgba(220, 30, 30, 0.45);
+    text-align: center;
+}
+.death-hero-number {
+    font-size: clamp(3rem, 9vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1;
+    color: #ff5b5b;
+    text-shadow: 0 0 24px rgba(255, 60, 60, 0.45), 0 2px 0 rgba(0,0,0,0.6);
+    letter-spacing: -0.02em;
+}
+.death-hero-label {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #f1bcbc;
+    font-weight: bold;
+}
+.death-breakdown {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+.death-breakdown li {
+    background: rgba(220, 30, 30, 0.08);
+    border: 1px solid rgba(220, 30, 30, 0.25);
+    border-radius: 10px;
+    padding: 8px 10px;
+    text-align: left;
+}
+.death-breakdown .stat-label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: #e8b8b8; }
+.death-breakdown .stat-value { display: block; font-size: 1.15rem; font-weight: bold; color: #ff8a8a; margin-top: 2px; }
+
+.stats-section-title {
+    margin: 22px 0 4px 0;
+    font-size: 0.95rem;
+    color: #fac800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
 
 /* View toggle */
 body.view-gallery #dashboard { display: none; }
