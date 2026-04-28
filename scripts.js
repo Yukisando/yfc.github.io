@@ -782,6 +782,19 @@ function renderSnapshotStats(d) {
   if (heroEl && total != null) {
     heroEl.hidden = false;
     heroNum.textContent = fmt(total);
+    const totalRez = [
+      deaths["Rebirthed by druids"],
+      deaths["Revived by druids"],
+      deaths["Resurrected by priests"],
+      deaths["Raised by death knights"],
+      deaths["Redeemed by paladins"],
+      deaths["Restored by paladins"],
+      deaths["Resuscitated by monks"],
+      deaths["Returned by evokers"],
+      deaths["Spirit returned to body by shamans"],
+      deaths["Resurrected by soulstones"],
+    ].reduce((sum, v) => sum + (v || 0), 0);
+
     breakdown.innerHTML = [
       deathRow("Falling", deaths["Deaths from falling"]),
       deathRow("Drowning", deaths["Deaths from drowning"]),
@@ -789,16 +802,9 @@ function renderSnapshotStats(d) {
       deathRow("Fire & Lava", deaths["Deaths from fire and lava"]),
       deathRow("In Dungeons", deaths["Total deaths in dungeons"]),
       deathRow("In Raids", deaths["Total deaths in raids"]),
-      deathRow("Rebirthed by Druids", deaths["Rebirthed by druids"]),
-      deathRow("Rezzed by Priests", deaths["Resurrected by priests"]),
-      deathRow("Raised by DKs", deaths["Raised by death knights"]),
-      deathRow("Soulstoned", deaths["Resurrected by soulstones"]),
+      deathRow("Times Rezzed", totalRez || null),
     ].filter(Boolean).join("");
   }
-
-  // --- Goofy stats ---
-  const goofyTitle = document.getElementById("goofyTitle");
-  if (goofyTitle) goofyTitle.hidden = false;
 
   const elixir = parseCountName(consum["Elixir consumed most"]);
   const food = parseCountName(consum["Food eaten most"]);
@@ -862,9 +868,5 @@ function initDashboard() {
   fetchCharacterStats();
   applyRoute();
 
-  // Play chime when user opens the gallery tile
-  const galleryTile = document.getElementById("screenshotOfTheDay");
-  if (galleryTile) {
-    galleryTile.addEventListener("click", playGalleryChime);
-  }
+
 }
