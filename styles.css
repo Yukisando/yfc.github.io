@@ -1077,7 +1077,7 @@ body.view-home .scroll-button { display: none; }
 /* === Expansion timeline slider (minimalist) === */
 .expansion-slider {
     position: sticky;
-    top: 70px; /* sits just below the fixed nav bar */
+    top: 88px; /* sits just below the fixed nav bar (mobile) */
     z-index: 900;
     margin: 90px 12px 8px 12px;
     padding: 6px 10px 8px;

@@ -720,8 +720,8 @@ function playGalleryChime() {
 // ==========================
 // Random emotes (yuki button)
 // ==========================
-const EMOTES_DIR = "assets/emotes";
-const EMOTES_CACHE_KEY = "yfc-emotes";
+const EMOTES_DIR = "assets/emots";
+const EMOTES_CACHE_KEY = "yfc-emots";
 const EMOTES_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
 let EMOTE_TRACKS = [];
 let currentEmoteAudio = null;
