@@ -13,14 +13,29 @@ export default async function handler(req, res) {
   }
   res.setHeader('Access-Control-Allow-Origin', 'https://yukisanfan.club');
 
-  // Parse JSON body if needed
+
+  // Robust JSON body parsing for Vercel
   let body = req.body;
-  if (req.headers['content-type'] && req.headers['content-type'].includes('application/json') && typeof req.body === 'string') {
-    try {
-      body = JSON.parse(req.body);
-    } catch {
-      res.status(400).json({ error: 'Invalid JSON' });
-      return;
+  if (req.method === 'POST') {
+    if (typeof req.body === 'string') {
+      try {
+        body = JSON.parse(req.body);
+      } catch {
+        res.status(400).json({ error: 'Invalid JSON' });
+        return;
+      }
+    } else if (!req.body || typeof req.body !== 'object') {
+      let raw = '';
+      await new Promise((resolve) => {
+        req.on('data', (chunk) => { raw += chunk; });
+        req.on('end', resolve);
+      });
+      try {
+        body = JSON.parse(raw);
+      } catch {
+        res.status(400).json({ error: 'Invalid JSON' });
+        return;
+      }
     }
   }
 

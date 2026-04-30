@@ -79,7 +79,7 @@
         <h2>Add a New Post</h2>
         <form id="newPostForm" autocomplete="off">
           <label>Date<br>
-            <input type="text" name="date" id="newPostDate" pattern="\\d{2}-\\d{2}-\\d{4}" required readonly style="cursor:pointer;" onclick="showDatePicker(this, event)">
+            <input type="date" name="date" id="newPostDate" required style="cursor:pointer;">
           </label><br>
           <label>Caption<br><textarea name="content" maxlength="200" required></textarea></label><br>
           <label>Images<br>

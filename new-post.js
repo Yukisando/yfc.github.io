@@ -2,10 +2,10 @@
 function openNewPostModal() {
   document.getElementById('newPostModal').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  // Pre-fill date with today
+  // Pre-fill date with today (YYYY-MM-DD for native input)
   const d = new Date();
   const pad = (n) => n.toString().padStart(2, '0');
-  const today = `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+  const today = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const dateInput = document.getElementById('newPostDate');
   if (dateInput) dateInput.value = today;
   // Reset file count
@@ -82,11 +82,14 @@ if (form) {
     const status = document.getElementById('newPostStatus');
     status.textContent = 'Submitting…';
     const fd = new FormData(form);
-    // Validate date
-    if (!/^\d{2}-\d{2}-\d{4}$/.test(fd.get('date'))) {
-      status.textContent = 'Date must be DD-MM-YYYY.';
+    // Format date as DD-MM-YYYY
+    let dateVal = fd.get('date');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+      status.textContent = 'Date must be selected.';
       return;
     }
+    const [yyyy, mm, dd] = dateVal.split('-');
+    const formattedDate = `${dd}-${mm}-${yyyy}`;
     // Read images as base64
     const files = fd.getAll('images');
     const images = [];
@@ -100,7 +103,7 @@ if (form) {
     }
     // Build payload
     const payload = {
-      date: fd.get('date'),
+      date: formattedDate,
       content: fd.get('content'),
       images,
       password: fd.get('password')
