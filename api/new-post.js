@@ -12,12 +12,23 @@ export default async function handler(req, res) {
     return;
   }
   res.setHeader('Access-Control-Allow-Origin', 'https://yukisanfan.club');
-  // Main logic
+
+  // Parse JSON body if needed
+  let body = req.body;
+  if (req.headers['content-type'] && req.headers['content-type'].includes('application/json') && typeof req.body === 'string') {
+    try {
+      body = JSON.parse(req.body);
+    } catch {
+      res.status(400).json({ error: 'Invalid JSON' });
+      return;
+    }
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
-  const { date, content, images, password } = req.body || {};
+  const { date, content, images, password } = body || {};
   if (!date || !content || !images || !Array.isArray(images) || !password) {
     res.status(400).json({ error: 'Missing fields' });
     return;
