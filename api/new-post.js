@@ -3,6 +3,16 @@
 // Env: GITHUB_TOKEN, POST_PASSWORD
 
 export default async function handler(req, res) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', 'https://yukisanfan.club');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.status(204).end();
+    return;
+  }
+  res.setHeader('Access-Control-Allow-Origin', 'https://yukisanfan.club');
+  // Main logic
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;

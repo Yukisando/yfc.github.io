@@ -8,7 +8,7 @@
 .upload-icon-btn {
     background: none;
     border: none;
-    padding: 0 0 0 2px;
+    padding: 10px 0 10px 0;
     margin: 0 auto 0 auto;
     cursor: pointer;
     vertical-align: middle;
@@ -60,6 +60,8 @@
     margin-bottom: 10px;
     font-size: 1em;
     text-align: center;
+    position: relative;
+    z-index: 2;
 }
 .modal-content input,
 .modal-content textarea {

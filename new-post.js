@@ -28,7 +28,8 @@ window.addEventListener('click', function(e) {
 });
 
 // Date picker logic
-function showDatePicker(input) {
+function showDatePicker(input, e) {
+  if (e) e.stopPropagation();
   // Create a hidden native date input
   let picker = document.getElementById('hiddenDatePicker');
   if (!picker) {
@@ -52,6 +53,15 @@ function showDatePicker(input) {
   picker.focus();
   picker.click();
 }
+// Prevent click-through on modal content
+window.addEventListener('DOMContentLoaded', function() {
+  const modalContent = document.querySelector('#newPostModal .modal-content');
+  if (modalContent) {
+    modalContent.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+});
 
 // File input: show file count
 const imgInput = document.getElementById('newPostImages');
