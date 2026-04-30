@@ -4,6 +4,38 @@ const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours
 
 let ALL_POSTS = [];
 
+// World of Warcraft expansion timeline (release dates from en.wikipedia.org).
+// Ordered oldest → newest. Each expansion runs until the next one releases.
+const EXPANSIONS = [
+  { id: "tbc",  name: "The Burning Crusade",  short: "TBC", start: "2007-01-16", color: "#5fbf3f" },
+  { id: "wotlk",name: "Wrath of the Lich King",short: "WotLK",start: "2008-11-13", color: "#7ec8e3" },
+  { id: "cata", name: "Cataclysm",            short: "Cata",start: "2010-12-07", color: "#d24b3a" },
+  { id: "mop",  name: "Mists of Pandaria",    short: "MoP", start: "2012-09-25", color: "#3fbf8f" },
+  { id: "wod",  name: "Warlords of Draenor",  short: "WoD", start: "2014-11-13", color: "#c46f2a" },
+  { id: "legion",name:"Legion",               short: "Legion",start:"2016-08-30", color: "#7ed957" },
+  { id: "bfa",  name: "Battle for Azeroth",   short: "BfA", start: "2018-08-14", color: "#c75450" },
+  { id: "sl",   name: "Shadowlands",          short: "SL",  start: "2020-11-23", color: "#8a5cd1" },
+  { id: "df",   name: "Dragonflight",         short: "DF",  start: "2022-11-28", color: "#e07a2b" },
+  { id: "tww",  name: "The War Within",       short: "TWW", start: "2024-08-26", color: "#4ea1c7" },
+  { id: "mn",   name: "Midnight",             short: "Midnight", start: "2026-03-02", color: "#5560b8" },
+];
+
+// Parse the post's "DD-MM-YYYY" date string into a Date.
+function parsePostDate(str) {
+  const [d, m, y] = String(str).split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
+function getExpansionForDate(date) {
+  const t = date.getTime();
+  let chosen = EXPANSIONS[0];
+  for (const exp of EXPANSIONS) {
+    if (t >= new Date(exp.start).getTime()) chosen = exp;
+    else break;
+  }
+  return chosen;
+}
+
 async function fetchPosts() {
   try {
     let posts = getCachedData("posts");
@@ -14,12 +46,58 @@ async function fetchPosts() {
     }
     // Newest first
     ALL_POSTS = posts.slice().reverse();
-    ALL_POSTS.forEach(createPost);
+    // Tag each post with its expansion
+    ALL_POSTS.forEach((p) => {
+      p._date = parsePostDate(p.date);
+      p._expansion = getExpansionForDate(p._date);
+    });
+    renderGallery();
     initDashboard();
   } catch (error) {
     console.error("Error fetching posts:", error);
     initDashboard();
   }
+}
+
+// Render gallery posts grouped by expansion, with section headers and a
+// timeline slider for quick navigation.
+function renderGallery() {
+  const container = document.getElementById("posts-container");
+  if (!container) return;
+  container.innerHTML = "";
+
+  // Build groups in DOM order (newest → oldest, since ALL_POSTS is reversed)
+  const groups = [];
+  let current = null;
+  ALL_POSTS.forEach((post) => {
+    if (!current || current.exp.id !== post._expansion.id) {
+      current = { exp: post._expansion, posts: [] };
+      groups.push(current);
+    }
+    current.posts.push(post);
+  });
+
+  groups.forEach((g) => {
+    const header = document.createElement("div");
+    header.className = "exp-section-header";
+    header.id = "exp-section-" + g.exp.id;
+    header.dataset.expId = g.exp.id;
+    header.style.setProperty("--exp-color", g.exp.color);
+    const first = g.posts[g.posts.length - 1]._date;
+    const last = g.posts[0]._date;
+    const fmt = (d) =>
+      d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+    const range = first.getTime() === last.getTime() ? fmt(first) : fmt(first) + " – " + fmt(last);
+    header.innerHTML = `
+      <span class="exp-section-dot"></span>
+      <span class="exp-section-name">${g.exp.name}</span>
+      <span class="exp-section-range">${range} · ${g.posts.length} post${g.posts.length === 1 ? "" : "s"}</span>
+    `;
+    container.appendChild(header);
+    g.posts.forEach(createPost);
+  });
+
+  buildExpansionSlider(groups);
 }
 
 // Simple cache management
@@ -430,6 +508,12 @@ document.addEventListener("keydown", function (event) {
 });
 
 const SNAPSHOT_URL = "assets/snapshots/snapshot";
+
+// Expansion timeline state (declared early so cache-hit synchronous path
+// through fetchPosts → renderGallery → buildExpansionSlider can access it).
+var EXP_GROUPS = [];           // [{ exp, posts }] in DOM order (newest → oldest)
+var EXP_SLIDER_DRAGGING = false;
+var EXP_SCROLL_RAF = 0;
 
 fetchPosts();
 
@@ -870,3 +954,207 @@ function initDashboard() {
 
 
 }
+
+// ==========================
+// Expansion timeline slider
+// ==========================
+
+function buildExpansionSlider(groups) {
+  EXP_GROUPS = groups;
+  const slider = document.getElementById("expansionSlider");
+  if (!slider || groups.length === 0) {
+    if (slider) slider.hidden = true;
+    return;
+  }
+  slider.hidden = false;
+  slider.style.display = "";
+
+  const totalPosts = groups.reduce((s, g) => s + g.posts.length, 0);
+  const segmentsHtml = groups
+    .map((g, i) => {
+      const pct = (g.posts.length / totalPosts) * 100;
+      return `<button type="button" class="exp-seg" data-idx="${i}"
+        style="flex-basis:${pct}%; --exp-color:${g.exp.color}"
+        aria-label="${g.exp.name}"
+        title="${g.exp.name} · ${g.posts.length} post${g.posts.length === 1 ? "" : "s"}"></button>`;
+    })
+    .join("");
+
+  slider.innerHTML = `
+    <div class="exp-current">
+      <span class="exp-current-name">${groups[0].exp.name}</span>
+      <span class="exp-current-range" id="expCurrentRange"></span>
+    </div>
+    <div class="exp-track" id="expTrack">
+      <div class="exp-segments">${segmentsHtml}</div>
+      <div class="exp-thumb" id="expThumb" tabindex="0" role="slider"
+           aria-valuemin="0" aria-valuemax="${groups.length - 1}" aria-valuenow="0"
+           aria-label="Expansion timeline"></div>
+    </div>
+  `;
+
+  // Click on a segment → jump to that expansion
+  slider.querySelectorAll(".exp-seg").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const idx = Number(btn.dataset.idx);
+      scrollToExpansion(idx);
+    });
+  });
+
+  const thumb = document.getElementById("expThumb");
+  const track = document.getElementById("expTrack");
+
+  const onPointerMove = (clientX) => {
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const idx = ratioToGroupIndex(ratio);
+    setThumbToGroup(idx, false);
+    scrollToExpansion(idx, "auto");
+  };
+
+  const startDrag = (e) => {
+    EXP_SLIDER_DRAGGING = true;
+    document.body.classList.add("exp-dragging");
+    const move = (ev) => {
+      const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      onPointerMove(x);
+      ev.preventDefault();
+    };
+    const end = () => {
+      EXP_SLIDER_DRAGGING = false;
+      document.body.classList.remove("exp-dragging");
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", end);
+      window.removeEventListener("touchmove", move);
+      window.removeEventListener("touchend", end);
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+    window.addEventListener("touchmove", move, { passive: false });
+    window.addEventListener("touchend", end);
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    onPointerMove(x);
+    e.preventDefault();
+  };
+  thumb.addEventListener("mousedown", startDrag);
+  thumb.addEventListener("touchstart", startDrag, { passive: false });
+  track.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".exp-seg")) return; // segments handle their own click
+    startDrag(e);
+  });
+
+  thumb.addEventListener("keydown", (e) => {
+    const cur = Number(thumb.getAttribute("aria-valuenow")) || 0;
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      const i = Math.max(0, cur - 1);
+      setThumbToGroup(i, false);
+      scrollToExpansion(i);
+      e.preventDefault();
+    } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      const i = Math.min(EXP_GROUPS.length - 1, cur + 1);
+      setThumbToGroup(i, false);
+      scrollToExpansion(i);
+      e.preventDefault();
+    }
+  });
+
+  // Initial sync
+  setThumbToGroup(0, true);
+}
+
+function ratioToGroupIndex(ratio) {
+  if (!EXP_GROUPS.length) return 0;
+  const total = EXP_GROUPS.reduce((s, g) => s + g.posts.length, 0);
+  let acc = 0;
+  for (let i = 0; i < EXP_GROUPS.length; i++) {
+    const w = EXP_GROUPS[i].posts.length / total;
+    if (ratio <= acc + w) return i;
+    acc += w;
+  }
+  return EXP_GROUPS.length - 1;
+}
+
+function groupIndexToRatio(idx) {
+  if (!EXP_GROUPS.length) return 0;
+  const total = EXP_GROUPS.reduce((s, g) => s + g.posts.length, 0);
+  let acc = 0;
+  for (let i = 0; i < idx; i++) acc += EXP_GROUPS[i].posts.length / total;
+  // Center of segment
+  acc += EXP_GROUPS[idx].posts.length / total / 2;
+  return acc;
+}
+
+function setThumbToGroup(idx, updateRange) {
+  const thumb = document.getElementById("expThumb");
+  const slider = document.getElementById("expansionSlider");
+  if (!thumb || !slider || !EXP_GROUPS[idx]) return;
+  const ratio = groupIndexToRatio(idx);
+  thumb.style.left = (ratio * 100).toFixed(3) + "%";
+  thumb.setAttribute("aria-valuenow", String(idx));
+  thumb.style.setProperty("--exp-color", EXP_GROUPS[idx].exp.color);
+
+  // Highlight active segment
+  slider.querySelectorAll(".exp-seg").forEach((el, i) => {
+    el.classList.toggle("active", i === idx);
+  });
+
+  // Update the readout
+  const nameEl = slider.querySelector(".exp-current-name");
+  const rangeEl = slider.querySelector(".exp-current-range");
+  if (nameEl) nameEl.textContent = EXP_GROUPS[idx].exp.name;
+  if (rangeEl) {
+    const g = EXP_GROUPS[idx];
+    const first = g.posts[g.posts.length - 1]._date;
+    const last = g.posts[0]._date;
+    const fmt = (d) =>
+      d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+    rangeEl.textContent =
+      (first.getTime() === last.getTime() ? fmt(first) : fmt(first) + " – " + fmt(last)) +
+      " · " + g.posts.length + " post" + (g.posts.length === 1 ? "" : "s");
+  }
+}
+
+function scrollToExpansion(idx, behavior) {
+  const g = EXP_GROUPS[idx];
+  if (!g) return;
+  const header = document.getElementById("exp-section-" + g.exp.id);
+  if (!header) return;
+  // Offset so the section header lands just below the sticky slider (and navbar).
+  const slider = document.getElementById("expansionSlider");
+  const sliderRect = slider ? slider.getBoundingClientRect() : null;
+  const navOffset = sliderRect ? sliderRect.bottom + 8 : 100;
+  const top = header.getBoundingClientRect().top + window.scrollY - navOffset;
+  window.scrollTo({ top, behavior: behavior || "smooth" });
+}
+
+// Sync the slider thumb with the current scroll position.
+function syncSliderToScroll() {
+  if (EXP_SLIDER_DRAGGING || !EXP_GROUPS.length) return;
+  if (!document.body.classList.contains("view-gallery")) return;
+  // The active expansion is the last header whose top is above the trigger line.
+  const slider = document.getElementById("expansionSlider");
+  const sliderRect = slider ? slider.getBoundingClientRect() : null;
+  const trigger = sliderRect ? sliderRect.bottom + 16 : 140;
+  let activeIdx = 0;
+  for (let i = 0; i < EXP_GROUPS.length; i++) {
+    const el = document.getElementById("exp-section-" + EXP_GROUPS[i].exp.id);
+    if (!el) continue;
+    const top = el.getBoundingClientRect().top;
+    if (top - trigger <= 0) activeIdx = i;
+    else break;
+  }
+  setThumbToGroup(activeIdx, true);
+}
+
+window.addEventListener(
+  "scroll",
+  () => {
+    if (EXP_SCROLL_RAF) return;
+    EXP_SCROLL_RAF = requestAnimationFrame(() => {
+      EXP_SCROLL_RAF = 0;
+      syncSliderToScroll();
+    });
+  },
+  { passive: true }
+);
+window.addEventListener("hashchange", () => setTimeout(syncSliderToScroll, 50));
