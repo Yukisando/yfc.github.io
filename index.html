@@ -62,16 +62,31 @@
     <!-- Now-playing toast -->
     <div id="trackToast" class="track-toast" aria-live="polite"></div>
 
-    <!-- Floating New Post button - Opens GitHub Issues -->
-    <a
-      href="https://github.com/Yukisando/yfc.github.io/issues/new?template=new-post.yml"
-      target="_blank"
+    <!-- Floating New Post button - Opens modal form -->
+    <button
+      type="button"
       class="new-post-button"
       title="Create New Post"
       aria-label="Create New Post"
+      onclick="openNewPostModal()"
     >
       +
-    </a>
+    </button>
+    <!-- New Post Modal (public form) -->
+    <div id="newPostModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeNewPostModal()">&times;</span>
+        <h2>Add a New Post</h2>
+        <form id="newPostForm" autocomplete="off">
+          <label>Date<br><input type="text" name="date" placeholder="DD-MM-YYYY" pattern="\\d{2}-\\d{2}-\\d{4}" required></label><br>
+          <label>Caption<br><textarea name="content" maxlength="200" required></textarea></label><br>
+          <label>Images<br><input type="file" name="images" accept="image/*" multiple required></label><br>
+          <label>Password<br><input type="password" name="password" required></label><br>
+          <button type="submit">Submit</button>
+          <div id="newPostStatus" style="margin-top:8px;"></div>
+        </form>
+      </div>
+    </div>
 
     <!-- Floating scroll button (toggles top/bottom) -->
     <button
@@ -143,4 +158,5 @@
     </div>
   </body>
   <script src="scripts.js" defer></script>
+  <script src="new-post.js" defer></script>
 </html>

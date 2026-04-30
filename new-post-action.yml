@@ -1,0 +1,51 @@
+name: "Add New Post via Form"
+on:
+  repository_dispatch:
+    types: [add-new-post]
+jobs:
+  add-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install js-base64
+      - name: Add new post
+        env:
+          POST_DATA: ${{ github.event.client_payload.post_data }}
+        run: |
+          echo "$POST_DATA" > post.json
+          node <<'EOF'
+const fs = require('fs');
+const path = require('path');
+const { Base64 } = require('js-base64');
+const post = JSON.parse(fs.readFileSync('post.json', 'utf8'));
+const postsPath = path.join(process.env.GITHUB_WORKSPACE, 'posts.json');
+const posts = JSON.parse(fs.readFileSync(postsPath, 'utf8'));
+// Save images
+if (post.images && Array.isArray(post.images)) {
+  post.images = post.images.map((img, i) => {
+    if (img.startsWith('data:')) {
+      const ext = img.match(/^data:image\/(\w+);/)[1] || 'png';
+      const b64 = img.split(',')[1];
+      const fname = `post-assets/form-${Date.now()}-${i}.${ext}`;
+      fs.writeFileSync(fname, Base64.toUint8Array(b64));
+      return fname;
+    }
+    return img;
+  });
+}
+posts.push(post);
+fs.writeFileSync(postsPath, JSON.stringify(posts, null, 2));
+EOF
+      - name: Commit and push
+        run: |
+          git config user.name "yfc-bot"
+          git config user.email "yfc-bot@users.noreply.github.com"
+          git add posts.json post-assets/*
+          git commit -m "Add new post via form"
+          git push
