@@ -2,12 +2,23 @@
 function openNewPostModal() {
   document.getElementById('newPostModal').style.display = 'block';
   document.body.style.overflow = 'hidden';
+  // Pre-fill date with today
+  const d = new Date();
+  const pad = (n) => n.toString().padStart(2, '0');
+  const today = `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+  const dateInput = document.getElementById('newPostDate');
+  if (dateInput) dateInput.value = today;
+  // Reset file count
+  const fileCount = document.getElementById('fileCount');
+  if (fileCount) fileCount.textContent = '';
 }
 function closeNewPostModal() {
   document.getElementById('newPostModal').style.display = 'none';
   document.body.style.overflow = '';
   document.getElementById('newPostForm').reset();
   document.getElementById('newPostStatus').textContent = '';
+  const fileCount = document.getElementById('fileCount');
+  if (fileCount) fileCount.textContent = '';
 }
 
 // Modal close on outside click
@@ -16,7 +27,42 @@ window.addEventListener('click', function(e) {
   if (e.target === modal) closeNewPostModal();
 });
 
-// Responsive: modal content CSS is in styles.css
+// Date picker logic
+function showDatePicker(input) {
+  // Create a hidden native date input
+  let picker = document.getElementById('hiddenDatePicker');
+  if (!picker) {
+    picker = document.createElement('input');
+    picker.type = 'date';
+    picker.id = 'hiddenDatePicker';
+    picker.style.position = 'absolute';
+    picker.style.opacity = 0;
+    picker.style.pointerEvents = 'none';
+    document.body.appendChild(picker);
+    picker.addEventListener('change', function() {
+      if (picker.value) {
+        const [y, m, d] = picker.value.split('-');
+        input.value = `${d}-${m}-${y}`;
+      }
+    });
+  }
+  // Set picker value to current input value
+  const val = input.value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (val) picker.value = `${val[3]}-${val[2]}-${val[1]}`;
+  picker.focus();
+  picker.click();
+}
+
+// File input: show file count
+const imgInput = document.getElementById('newPostImages');
+if (imgInput) {
+  imgInput.addEventListener('change', function() {
+    const fileCount = document.getElementById('fileCount');
+    if (fileCount) {
+      fileCount.textContent = imgInput.files.length ? `${imgInput.files.length} file(s) selected` : '';
+    }
+  });
+}
 
 // Form handler
 const form = document.getElementById('newPostForm');

@@ -78,9 +78,17 @@
         <span class="modal-close" onclick="closeNewPostModal()">&times;</span>
         <h2>Add a New Post</h2>
         <form id="newPostForm" autocomplete="off">
-          <label>Date<br><input type="text" name="date" placeholder="DD-MM-YYYY" pattern="\\d{2}-\\d{2}-\\d{4}" required></label><br>
+          <label>Date<br>
+            <input type="text" name="date" id="newPostDate" pattern="\\d{2}-\\d{2}-\\d{4}" required readonly style="cursor:pointer;" onclick="showDatePicker(this)">
+          </label><br>
           <label>Caption<br><textarea name="content" maxlength="200" required></textarea></label><br>
-          <label>Images<br><input type="file" name="images" accept="image/*" multiple required></label><br>
+          <label>Images<br>
+            <input type="file" name="images" id="newPostImages" accept="image/*" multiple required style="display:none;">
+            <button type="button" id="uploadBtn" class="upload-icon-btn" onclick="document.getElementById('newPostImages').click(); return false;" aria-label="Upload images">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fac800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </button>
+            <span id="fileCount" style="margin-left:8px;font-size:0.95em;"></span>
+          </label><br>
           <label>Password<br><input type="password" name="password" required></label><br>
           <button type="submit">Submit</button>
           <div id="newPostStatus" style="margin-top:8px;"></div>
