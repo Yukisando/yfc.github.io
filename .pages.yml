@@ -1,0 +1,51 @@
+# Pages CMS configuration
+# Docs: https://pagescms.org/docs/configuration/
+#
+# This file maps the existing posts.json array onto an admin UI without
+# changing the on-disk data format. The site (scripts.js) keeps reading
+# posts.json exactly as before.
+
+media:
+  # Where uploaded images are stored in the repo, and the URL/path written
+  # into posts.json. Existing entries use paths like "post-assets/post1.png",
+  # so we keep the same root with no leading slash.
+  input: post-assets
+  output: post-assets
+
+content:
+  - name: posts
+    label: Posts
+    type: file
+    path: posts.json
+    format: json
+    # Treat the JSON file as a top-level array; each item is a post.
+    list: true
+    view:
+      fields: [date, content]
+      primary: content
+      sort: [date]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: date
+        label: Date
+        type: string
+        description: "Format: DD-MM-YYYY (e.g. 19-10-2019)"
+        required: true
+        pattern:
+          regex: '^\d{2}-\d{2}-\d{4}$'
+          message: "Date must be in DD-MM-YYYY format."
+      - name: content
+        label: Caption
+        type: text
+        required: true
+      - name: images
+        label: Images
+        type: image
+        list: true
+        required: true
+
+settings:
+  merge:
+    method: direct
