@@ -1,3 +1,41 @@
+.calendar-icon-btn svg {
+    display: block;
+    stroke: #fac800;
+    background: none;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.calendar-icon-btn:hover svg {
+    background: #fac80022;
+}
+
+.bento-armory-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 18px 0 10px 0;
+    min-height: 80px;
+}
+.bento-armory-icon {
+    width: 80px;
+    height: 80px;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+.bento-armory {
+    min-height: 220px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+}
+.bento-armory h2, .bento-armory .bento-sub, .bento-armory .bento-cta {
+    text-align: center;
+    width: 100%;
+}
 .modal-content input,
 .modal-content textarea,
 .modal-content button,

@@ -723,8 +723,17 @@ function playGalleryChime() {
 const EMOTES_DIR = "assets/emotes";
 const EMOTES_CACHE_KEY = "yfc-emotes-v2";
 const EMOTES_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
+
 let EMOTE_TRACKS = [];
+let emoteOrder = [];
+let emoteIndex = 0;
 let currentEmoteAudio = null;
+
+function reshuffleEmotes() {
+  emoteOrder = EMOTE_TRACKS.map((_, i) => i).sort(() => Math.random() - 0.5);
+  emoteIndex = 0;
+}
+
 
 async function loadEmoteTracks() {
   // Cached list first
@@ -737,6 +746,7 @@ async function loadEmoteTracks() {
       Date.now() - cached.timestamp < EMOTES_CACHE_TTL
     ) {
       EMOTE_TRACKS = cached.data;
+      reshuffleEmotes();
     }
   } catch (_) {}
 
@@ -754,6 +764,7 @@ async function loadEmoteTracks() {
         .sort();
       if (tracks.length > 0) {
         EMOTE_TRACKS = tracks;
+        reshuffleEmotes();
         localStorage.setItem(
           EMOTES_CACHE_KEY,
           JSON.stringify({ data: tracks, timestamp: Date.now() })
@@ -764,6 +775,7 @@ async function loadEmoteTracks() {
     console.warn("Emote directory listing failed:", err);
   }
 }
+
 
 function playRandomEmote() {
   if (!EMOTE_TRACKS.length) {
@@ -778,7 +790,11 @@ function playRandomEmote() {
     try { currentEmoteAudio.pause(); } catch (_) {}
     currentEmoteAudio = null;
   }
-  const src = EMOTE_TRACKS[Math.floor(Math.random() * EMOTE_TRACKS.length)];
+  if (!emoteOrder.length || emoteIndex >= emoteOrder.length) {
+    reshuffleEmotes();
+  }
+  const src = EMOTE_TRACKS[emoteOrder[emoteIndex]];
+  emoteIndex = (emoteIndex + 1) % emoteOrder.length;
   try {
     const audio = new Audio(encodeURI(src));
     audio.volume = 0.7;
