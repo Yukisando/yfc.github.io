@@ -717,8 +717,84 @@ function playGalleryChime() {
   } catch (_) {}
 }
 
+// ==========================
+// Random emotes (yuki button)
+// ==========================
+const EMOTES_DIR = "assets/emotes";
+const EMOTES_CACHE_KEY = "yfc-emotes";
+const EMOTES_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
+let EMOTE_TRACKS = [];
+let currentEmoteAudio = null;
+
+async function loadEmoteTracks() {
+  // Cached list first
+  try {
+    const cached = JSON.parse(localStorage.getItem(EMOTES_CACHE_KEY) || "null");
+    if (
+      cached &&
+      Array.isArray(cached.data) &&
+      cached.data.length > 0 &&
+      Date.now() - cached.timestamp < EMOTES_CACHE_TTL
+    ) {
+      EMOTE_TRACKS = cached.data;
+    }
+  } catch (_) {}
+
+  // Refresh from GitHub Contents API
+  try {
+    const url = `https://api.github.com/repos/${PLAYLIST_REPO}/contents/${EMOTES_DIR}?ref=${PLAYLIST_BRANCH}`;
+    const res = await fetch(url, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (res.ok) {
+      const items = await res.json();
+      const tracks = items
+        .filter((it) => it.type === "file" && isAudioFile(it.name))
+        .map((it) => `${EMOTES_DIR}/${it.name}`)
+        .sort();
+      if (tracks.length > 0) {
+        EMOTE_TRACKS = tracks;
+        localStorage.setItem(
+          EMOTES_CACHE_KEY,
+          JSON.stringify({ data: tracks, timestamp: Date.now() })
+        );
+      }
+    }
+  } catch (err) {
+    console.warn("Emote directory listing failed:", err);
+  }
+}
+
+function playRandomEmote() {
+  if (!EMOTE_TRACKS.length) {
+    // Try to (re)load and retry once
+    loadEmoteTracks().then(() => {
+      if (EMOTE_TRACKS.length) playRandomEmote();
+    });
+    return;
+  }
+  // Stop a previous emote so they don't overlap when spammed
+  if (currentEmoteAudio) {
+    try { currentEmoteAudio.pause(); } catch (_) {}
+    currentEmoteAudio = null;
+  }
+  const src = EMOTE_TRACKS[Math.floor(Math.random() * EMOTE_TRACKS.length)];
+  try {
+    const audio = new Audio(encodeURI(src));
+    audio.volume = 0.7;
+    currentEmoteAudio = audio;
+    const attempt = audio.play();
+    if (attempt && typeof attempt.catch === "function") {
+      attempt.catch((err) => console.warn("Emote play blocked:", err));
+    }
+  } catch (err) {
+    console.warn("Emote play failed:", err);
+  }
+}
+
 updatePlaylistUI();
 loadPlaylistTracks();
+loadEmoteTracks();
 
 // ==========================
 // Dashboard, routing, stats
