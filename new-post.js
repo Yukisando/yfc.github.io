@@ -95,24 +95,19 @@ if (form) {
       images,
       password: fd.get('password')
     };
-    // POST to GitHub Action endpoint
+    // POST to Vercel function endpoint
     try {
-      const resp = await fetch('https://api.github.com/repos/Yukisando/yfc.github.io/dispatches', {
+      const resp = await fetch('https://your-vercel-deployment-url/api/new-post', {
         method: 'POST',
-        headers: {
-          'Accept': 'application/vnd.github.everest-preview+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          event_type: 'add-new-post',
-          client_payload: { post_data: JSON.stringify(payload) }
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (resp.ok) {
         status.textContent = 'Submitted! Your post will appear soon.';
         setTimeout(closeNewPostModal, 2000);
       } else {
-        status.textContent = 'Error: ' + resp.status + ' (are you rate-limited?)';
+        const data = await resp.json().catch(() => ({}));
+        status.textContent = 'Error: ' + (data.error || resp.status);
       }
     } catch (err) {
       status.textContent = 'Network error.';
