@@ -97,7 +97,7 @@ if (form) {
     };
     // POST to Vercel function endpoint
     try {
-      const resp = await fetch('https://your-vercel-deployment-url/api/new-post', {
+      const resp = await fetch('https://project-mtfzm.vercel.app/api/new-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
