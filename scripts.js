@@ -1,5 +1,5 @@
 // Cache configuration
-const CACHE_NAME = "yfc-cache-v1";
+const CACHE_NAME = "yfc-cache-v2";
 const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours
 
 let ALL_POSTS = [];
@@ -38,12 +38,10 @@ function getExpansionForDate(date) {
 
 async function fetchPosts() {
   try {
-    let posts = getCachedData("posts");
-    if (!posts) {
-      const response = await fetch("posts.json");
-      posts = await response.json();
-      setCachedData("posts", posts);
-    }
+    // Always revalidate with the server — GitHub Pages uses ETags so the
+    // browser only re-downloads posts.json when it actually changes.
+    const response = await fetch("posts.json", { cache: "no-cache" });
+    const posts = await response.json();
     // Newest first
     ALL_POSTS = posts.slice().reverse();
     // Tag each post with its expansion
