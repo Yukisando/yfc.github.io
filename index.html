@@ -79,24 +79,19 @@
         <h2>Add a New Post</h2>
         <form id="newPostForm" autocomplete="off">
           <label>Date<br>
-            <span style="display:flex;align-items:center;justify-content:center;gap:8px;">
-              <input type="date" name="date" id="newPostDate" required style="cursor:pointer;max-width:140px;">
-              <button type="button" id="calendarBtn" class="calendar-icon-btn" tabindex="-1" aria-label="Pick date" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fac800" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="4"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              </button>
-            </span>
+            <input type="date" name="date" id="newPostDate" required>
           </label><br>
           <label>Caption<br><textarea name="content" maxlength="200" required></textarea></label><br>
           <label>Images<br>
             <input type="file" name="images" id="newPostImages" accept="image/*" multiple required style="display:none;">
             <button type="button" id="uploadBtn" class="upload-icon-btn" onclick="document.getElementById('newPostImages').click(); return false;" aria-label="Upload images">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fac800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fac800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </button>
-            <span id="fileCount" style="margin-left:8px;font-size:0.95em;"></span>
+            <span id="fileCount" style="display:block;font-size:0.9em;color:#ccc;margin-top:4px;min-height:1.2em;"></span>
           </label><br>
           <label>Password<br><input type="password" name="password" required></label><br>
-          <button type="submit">Submit</button>
-          <div id="newPostStatus" style="margin-top:8px;"></div>
+          <button type="submit" class="modal-submit-btn">Submit</button>
+          <div id="newPostStatus" class="modal-status"></div>
         </form>
       </div>
     </div>

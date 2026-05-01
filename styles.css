@@ -45,19 +45,22 @@
 }
 .upload-icon-btn {
     background: none;
-    border: none;
-    padding: 10px 0 10px 0;
-    margin: 0 auto 0 auto;
+    border: 1.5px dashed #fac80055;
+    padding: 18px 32px;
+    margin: 6px auto;
     cursor: pointer;
     vertical-align: middle;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    transition: background 0.2s;
+    border-radius: 10px;
+    transition: background 0.2s, border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 .upload-icon-btn:hover {
-    background: #fac80022;
+    background: #fac80015;
+    border-color: #fac800;
 }
 .upload-icon-btn svg {
     display: block;
@@ -118,20 +121,40 @@
     min-height: 60px;
     resize: vertical;
 }
-.modal-content button[type="submit"] {
+.modal-content button[type="submit"],
+.modal-submit-btn {
     background: #fac800;
     color: #222;
     border: none;
     border-radius: 6px;
-    padding: 8px 18px;
+    padding: 10px 32px;
     font-size: 1em;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 6px;
+    margin: 12px auto 0;
+    display: block;
+    width: 100%;
     transition: background 0.2s;
 }
-.modal-content button[type="submit"]:hover {
+.modal-content button[type="submit"]:hover,
+.modal-submit-btn:hover {
     background: #d6ab00;
+}
+.modal-status {
+    min-height: 44px;
+    margin-top: 10px;
+    font-size: 0.92em;
+    text-align: center;
+    line-height: 1.4;
+    word-break: break-word;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Style native date input */
+.modal-content input[type="date"] {
+    cursor: pointer;
+    color-scheme: dark;
 }
 .modal-close {
     position: absolute;
@@ -1056,13 +1079,13 @@ video.post-image {
         gap: 20px;
     }
     .bento-gallery { grid-column: span 4; grid-row: span 2; }
-    .bento-armory  { grid-column: span 2; }
+    .bento-armory  { grid-column: span 2; grid-row: span 2; }
     .bento-stats   { grid-column: span 2; }
 }
 @media (min-width: 1100px) {
     .bento-grid { grid-template-columns: repeat(8, 1fr); }
     .bento-gallery { grid-column: span 4; grid-row: span 2; }
-    .bento-armory  { grid-column: span 4; }
+    .bento-armory  { grid-column: span 4; grid-row: span 2; }
     .bento-stats   { grid-column: span 8; }
 }
 

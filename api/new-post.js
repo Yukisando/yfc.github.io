@@ -52,11 +52,48 @@ export default async function handler(req, res) {
     res.status(403).json({ error: 'Invalid password' });
     return;
   }
-  // Trigger GitHub Action via repository_dispatch
+
+  // Upload each image directly to the GitHub repo via the Contents API.
+  // This avoids putting large base64 blobs in client_payload (10 KB limit).
+  const uploadedPaths = [];
+  const timestamp = Date.now();
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i];
+    if (!img.startsWith('data:')) {
+      uploadedPaths.push(img);
+      continue;
+    }
+    const extMatch = img.match(/^data:image\/(\w+);/);
+    const ext = (extMatch && extMatch[1]) || 'png';
+    const b64 = img.split(',')[1];
+    const fname = `post-assets/form-${timestamp}-${i}.${ext}`;
+
+    const uploadResp = await fetch(
+      `https://api.github.com/repos/Yukisando/yfc.github.io/contents/${fname}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: `Add post image ${fname}`, content: b64 })
+      }
+    );
+
+    if (!uploadResp.ok) {
+      const err = await uploadResp.text();
+      res.status(500).json({ error: `Image upload failed: ${err}` });
+      return;
+    }
+    uploadedPaths.push(fname);
+  }
+
+  // Trigger GitHub Action with only the file paths — no base64 in the payload
   const payload = {
     event_type: 'add-new-post',
     client_payload: {
-      post_data: JSON.stringify({ date, content, images })
+      post_data: JSON.stringify({ date, content, images: uploadedPaths })
     }
   };
   const ghResp = await fetch('https://api.github.com/repos/Yukisando/yfc.github.io/dispatches', {
