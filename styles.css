@@ -1253,9 +1253,6 @@ video.post-image {
 .icon { width: 1em; height: 1em; fill: currentColor; display: inline-block; vertical-align: middle; }
 .playlist-button .icon { width: 18px; height: 18px; }
 .scroll-button .icon { width: 26px; height: 26px; }
-#dashPlayPause .icon-pause { display: none; }
-#dashPlayPause.playing .icon-play { display: none; }
-#dashPlayPause.playing .icon-pause { display: inline-block; }
 #scrollButton .icon-up { display: none; }
 #scrollButton.at-bottom .icon-down { display: none; }
 #scrollButton.at-bottom .icon-up { display: inline-block; }
@@ -1298,21 +1295,35 @@ video.post-image {
     .bento-stats    { grid-column: span 8; }
 }
 
-/* Playlist bento tile – compact horizontal strip */
+/* Playlist bento tile – tiny modern chip */
 .bento-playlist {
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     min-height: 0;
-    padding: 10px 14px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #1e1e2a 0%, #1a1a22 100%);
+    border-color: rgba(170, 140, 255, 0.25);
+    border-radius: 12px;
 }
-.bento-playlist .bento-eyebrow {
-    flex-shrink: 0;
+.bento-playlist-inner {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.bento-playlist-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9a85d0;
+    font-weight: bold;
+    line-height: 1;
 }
 .bento-playlist-name {
-    flex: 1;
-    color: #fffbe6;
-    font-size: 0.82rem;
+    color: #e0d8ff;
+    font-size: 0.78rem;
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
@@ -1321,19 +1332,39 @@ video.post-image {
 }
 .bento-playlist-btns {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     align-items: center;
     flex-shrink: 0;
 }
-.bento-playlist .playlist-button {
-    width: 32px;
-    height: 32px;
-    border-width: 2px;
+.dash-pl-btn {
+    width: 26px;
+    height: 26px;
+    background: rgba(154, 133, 208, 0.15);
+    border: 1.5px solid rgba(154, 133, 208, 0.4);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c5b8f0;
+    transition: background 0.18s, border-color 0.18s, transform 0.12s;
+    padding: 0;
 }
-.bento-playlist .playlist-button .icon {
-    width: 14px;
-    height: 14px;
+.dash-pl-btn:hover {
+    background: rgba(154, 133, 208, 0.3);
+    border-color: #c5b8f0;
+    transform: scale(1.1);
 }
+.dash-pl-btn:active { transform: scale(0.92); }
+.dash-pl-btn .icon { width: 11px; height: 11px; }
+.dash-pl-btn.playing {
+    background: rgba(154, 133, 208, 0.35);
+    border-color: #c5b8f0;
+}
+/* Play/pause icon toggle for dashboard button */
+#dashPlayPause .icon-pause { display: none; }
+#dashPlayPause.playing .icon-play { display: none; }
+#dashPlayPause.playing .icon-pause { display: inline-block; }
 
 .bento-tile {
     position: relative;
@@ -1484,47 +1515,69 @@ body.view-gallery #dashboard { display: none; }
 body.view-home #posts-container { display: none; }
 body.view-home #expansionSlider { display: none; }
 body.view-home #galleryWrap { display: none; }
-body.view-home .gallery-search-wrap { display: none; }
 
-/* In gallery view, slider provides top spacing — collapse grid's own top margin */
+/* When slider is hidden (during search) still keep the post-container's spacing */
+#expansionSlider[hidden] { display: none !important; }
 body.view-gallery #posts-container { margin-top: 12px; }
 
-/* === Gallery search bar === */
-.gallery-search-wrap {
+/* Hide gallery-only floating buttons on home */
+body.view-home .new-post-button { display: none; }
+body.view-home .nav-post-btn { display: none !important; }
+body.view-home .scroll-button { display: none; }
+
+/* === Sticky gallery controls wrapper (search + slider) === */
+.gallery-controls-sticky {
     position: sticky;
     top: 70px;
     z-index: 901;
-    margin: 88px 12px 0 12px;
+    margin-top: 88px;
     padding: 0;
 }
-@media (min-width: 600px) {
-    .gallery-search-wrap { margin: 100px 12px 0 12px; top: 78px; }
+@media (min-width: 600px) { .gallery-controls-sticky { top: 78px; margin-top: 100px; } }
+@media (min-width: 900px) { .gallery-controls-sticky { top: 86px; margin-top: 110px; } }
+@media (min-width: 1300px) { .gallery-controls-sticky { top: 92px; margin-top: 120px; } }
+
+/* === Gallery search bar (collapsed by default, expands on focus/has-text) === */
+.gallery-search-wrap {
+    margin: 0 12px 0 12px;
+    padding: 0;
 }
-@media (min-width: 900px) {
-    .gallery-search-wrap { margin: 110px 12px 0 12px; top: 86px; }
-}
-@media (min-width: 1300px) {
-    .gallery-search-wrap { margin: 120px 14px 0 14px; top: 92px; }
-}
+@media (min-width: 1300px) { .gallery-search-wrap { margin: 0 14px; } }
 .gallery-search-inner {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(20, 20, 20, 0.82);
+    gap: 0;
+    background: rgba(20, 20, 20, 0.75);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(250, 200, 0, 0.22);
-    border-radius: 10px;
-    padding: 7px 12px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(250, 200, 0, 0.18);
+    border-radius: 999px;
+    padding: 5px 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    width: fit-content;
+    max-width: 38px; /* collapsed: just the icon */
+    overflow: hidden;
+    transition: max-width 0.3s ease, border-color 0.2s, box-shadow 0.2s, padding 0.2s;
 }
-.gallery-search-icon {
+.gallery-search-inner.open {
+    max-width: 480px;
+    border-color: rgba(250, 200, 0, 0.4);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+}
+.gallery-search-toggle {
     flex-shrink: 0;
-    width: 16px;
-    height: 16px;
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
     color: #fac800;
+    display: flex;
+    align-items: center;
     opacity: 0.7;
+    transition: opacity 0.15s;
 }
+.gallery-search-toggle:hover { opacity: 1; }
+.gallery-search-toggle svg { width: 16px; height: 16px; display: block; }
 .gallery-search-input {
     flex: 1;
     background: none;
@@ -1535,34 +1588,46 @@ body.view-gallery #posts-container { margin-top: 12px; }
     font-size: 0.88rem;
     caret-color: #fac800;
     min-width: 0;
+    width: 0;
+    padding: 0;
+    transition: width 0.3s ease, padding 0.2s;
+    opacity: 0;
 }
-.gallery-search-input::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+.gallery-search-inner.open .gallery-search-input {
+    width: 180px;
+    padding: 0 6px;
+    opacity: 1;
 }
-/* Hide the native clear (×) button from search inputs in webkit */
+@media (min-width: 600px) {
+    .gallery-search-inner.open .gallery-search-input { width: 240px; }
+}
+.gallery-search-input::placeholder { color: rgba(255, 255, 255, 0.35); }
 .gallery-search-input::-webkit-search-cancel-button { display: none; }
 .gallery-search-count {
     flex-shrink: 0;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: rgba(250, 200, 0, 0.7);
     white-space: nowrap;
+    padding-right: 2px;
 }
-
-/* When slider is hidden (during search) still keep the post-container's spacing */
-#expansionSlider[hidden] { display: none; }
-body.view-gallery #posts-container { margin-top: 12px; }
-
-/* Hide gallery-only floating buttons on home */
-body.view-home .new-post-button { display: none; }
-body.view-home .nav-post-btn { display: none !important; }
-body.view-home .scroll-button { display: none; }
+.gallery-search-clear {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(250, 200, 0, 0.6);
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+}
+.gallery-search-clear:hover { color: #fac800; background: rgba(250,200,0,0.1); }
+.gallery-search-clear svg { width: 13px; height: 13px; display: block; }
 
 /* === Expansion timeline slider (minimalist) === */
 .expansion-slider {
-    position: sticky;
-    top: 88px;
-    z-index: 900;
-    margin: 6px 12px;
+    margin: 5px 12px 0;
     padding: 4px 10px;
     background: rgba(20, 20, 20, 0.72);
     backdrop-filter: blur(10px);
@@ -1572,16 +1637,7 @@ body.view-home .scroll-button { display: none; }
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     user-select: none;
 }
-
-@media (min-width: 600px) {
-    .expansion-slider { margin: 6px 12px; top: 78px; }
-}
-@media (min-width: 900px) {
-    .expansion-slider { margin: 6px 12px; top: 86px; }
-}
-@media (min-width: 1300px) {
-    .expansion-slider { margin: 6px 14px; top: 92px; }
-}
+@media (min-width: 1300px) { .expansion-slider { margin: 5px 14px 0; } }
 
 .expansion-slider .exp-track {
     position: relative;
@@ -1645,7 +1701,7 @@ body.exp-dragging { cursor: grabbing; }
 
 /* Compact on small screens */
 @media (max-width: 600px) {
-    .expansion-slider { padding: 3px 8px; border-radius: 6px; }
+    .expansion-slider { padding: 3px 8px; border-radius: 6px; margin: 4px 8px 0; }
     .expansion-slider .exp-track { height: 8px; }
     .expansion-slider .exp-segments { inset: 2px 0; }
     .expansion-slider .exp-thumb { width: 8px; height: 8px; }

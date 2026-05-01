@@ -160,14 +160,16 @@
         </a>
 
         <div class="bento-tile bento-playlist" id="dashPlaylist">
-          <span class="bento-eyebrow">Playlist</span>
-          <div class="bento-playlist-name" id="dashTrackName">—</div>
+          <div class="bento-playlist-inner">
+            <div class="bento-playlist-label">Now playing</div>
+            <div class="bento-playlist-name" id="dashTrackName">—</div>
+          </div>
           <div class="bento-playlist-btns">
-            <button class="playlist-button" id="dashPlayPause" title="Play playlist" aria-label="Play playlist" onclick="togglePlaylist()">
+            <button class="dash-pl-btn" id="dashPlayPause" title="Play playlist" aria-label="Play playlist" onclick="togglePlaylist()">
               <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
               <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
             </button>
-            <button class="playlist-button" id="dashNext" title="Next track" aria-label="Next track" onclick="nextTrack()">
+            <button class="dash-pl-btn" id="dashNext" title="Next track" aria-label="Next track" onclick="nextTrack()">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l8.5 6L6 18V6zm10 0h2v12h-2z"/></svg>
             </button>
           </div>
@@ -194,22 +196,30 @@
 
     <!-- Gallery wrapper: search bar + timeline slider + posts grid -->
     <div id="galleryWrap">
-      <div class="gallery-search-wrap">
-        <div class="gallery-search-inner">
-          <svg class="gallery-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input
-            type="search"
-            id="gallerySearch"
-            class="gallery-search-input"
-            placeholder="Search posts…"
-            aria-label="Search posts by date or caption"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <span id="gallerySearchCount" class="gallery-search-count" hidden></span>
+      <!-- Sticky gallery controls: search + timeline slider -->
+      <div class="gallery-controls-sticky">
+        <div class="gallery-search-wrap">
+          <div class="gallery-search-inner">
+            <button class="gallery-search-toggle" id="gallerySearchToggle" aria-label="Open search" title="Search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </button>
+            <input
+              type="search"
+              id="gallerySearch"
+              class="gallery-search-input"
+              placeholder="Search posts…"
+              aria-label="Search posts by date or caption"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span id="gallerySearchCount" class="gallery-search-count" hidden></span>
+            <button class="gallery-search-clear" id="gallerySearchClear" aria-label="Clear search" title="Clear" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
         </div>
+        <div id="expansionSlider" class="expansion-slider" aria-label="World of Warcraft expansion timeline"></div>
       </div>
-      <div id="expansionSlider" class="expansion-slider" aria-label="World of Warcraft expansion timeline"></div>
       <div id="posts-container" class="grid-container"></div>
     </div>
 

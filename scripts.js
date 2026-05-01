@@ -932,13 +932,60 @@ function filterGallery(query) {
 
 function initGallerySearch() {
   const input = document.getElementById("gallerySearch");
+  const inner = input && input.closest(".gallery-search-inner");
+  const toggleBtn = document.getElementById("gallerySearchToggle");
+  const clearBtn = document.getElementById("gallerySearchClear");
   if (!input) return;
-  input.addEventListener("input", () => filterGallery(input.value));
+
+  function openSearch() {
+    inner && inner.classList.add("open");
+    input.focus();
+  }
+
+  function clearSearch() {
+    input.value = "";
+    filterGallery("");
+    if (clearBtn) clearBtn.hidden = true;
+    inner && inner.classList.remove("open");
+    input.blur();
+  }
+
+  toggleBtn && toggleBtn.addEventListener("click", () => {
+    if (inner && inner.classList.contains("open")) {
+      clearSearch();
+    } else {
+      openSearch();
+    }
+  });
+
+  clearBtn && clearBtn.addEventListener("click", clearSearch);
+
+  input.addEventListener("input", () => {
+    filterGallery(input.value);
+    if (clearBtn) clearBtn.hidden = !input.value;
+    if (input.value && inner) inner.classList.add("open");
+  });
+
+  input.addEventListener("blur", () => {
+    // Only collapse if empty
+    if (!input.value && inner) {
+      setTimeout(() => {
+        if (!input.value) inner.classList.remove("open");
+      }, 150);
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      clearSearch();
+      e.preventDefault();
+    }
+  });
+
   // Clear search when navigating away from gallery
   window.addEventListener("hashchange", () => {
     if (!(location.hash || "").toLowerCase().startsWith("#/gallery")) {
-      input.value = "";
-      filterGallery("");
+      clearSearch();
     }
   });
 }
