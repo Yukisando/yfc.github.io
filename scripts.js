@@ -594,6 +594,7 @@ async function loadPlaylistTracks() {
   if (PLAYLIST_TRACKS.length === 0) PLAYLIST_TRACKS = PLAYLIST_FALLBACK.slice();
 
   reshuffle();
+  renderDashTrackList();
 }
 
 function reshuffle() {
@@ -626,6 +627,11 @@ function updatePlaylistUI() {
   if (fpBtn) {
     fpBtn.title = isPlaylistPlaying ? "Pause" : "Play";
   }
+  // Highlight active track in the dashboard track list
+  const currentTrackIdx = PLAYLIST_TRACKS.length ? playlistOrder[playlistIndex] : -1;
+  document.querySelectorAll(".bento-tracklist-item").forEach((el) => {
+    el.classList.toggle("active", Number(el.dataset.trackIdx) === currentTrackIdx);
+  });
 }
 
 function updateNowPlayingName(name) {
@@ -679,6 +685,10 @@ function playCurrentTrack() {
       updatePlaylistUI();
       updateNowPlayingName(trackName);
       setTrackTitle(trackName);
+      showTrackToast(trackName);
+      // Scroll the active track into view in the dashboard list
+      const activeItem = document.querySelector(".bento-tracklist-item.active");
+      if (activeItem) activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
     })
     .catch((err) => {
       console.warn("Playlist play blocked:", err);
@@ -718,6 +728,36 @@ function nextTrack() {
   // Reshuffle when looping back to start
   if (playlistIndex === 0) reshuffle();
   playCurrentTrack();
+}
+
+function prevTrack() {
+  if (PLAYLIST_TRACKS.length === 0) return;
+  playlistIndex = (playlistIndex - 1 + playlistOrder.length) % playlistOrder.length;
+  playCurrentTrack();
+}
+
+function renderDashTrackList() {
+  const list = document.getElementById("dashTrackList");
+  if (!list) return;
+  list.innerHTML = "";
+  PLAYLIST_TRACKS.forEach((path, idx) => {
+    const li = document.createElement("li");
+    li.className = "bento-tracklist-item";
+    li.dataset.trackIdx = idx;
+    li.textContent = getTrackName(path);
+    li.addEventListener("click", () => {
+      // Find this track index in the shuffled order; if not found, play directly
+      const orderIdx = playlistOrder.indexOf(idx);
+      if (orderIdx !== -1) {
+        playlistIndex = orderIdx;
+      } else {
+        // Insert at current position
+        playlistOrder.splice(playlistIndex, 0, idx);
+      }
+      playCurrentTrack();
+    });
+    list.appendChild(li);
+  });
 }
 
 playlistAudio.addEventListener("ended", nextTrack);
