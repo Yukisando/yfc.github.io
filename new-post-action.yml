@@ -5,6 +5,8 @@ on:
 jobs:
   add-post:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

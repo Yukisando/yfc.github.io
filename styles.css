@@ -705,7 +705,25 @@ video.post-image {
 }
 
 /* nav-post-btn: hidden on mobile, visible on desktop */
-.nav-post-btn { display: none !important; }
+.nav-post-btn {
+    display: none !important;
+    background-color: #fac800 !important;
+    border-color: #fac800 !important;
+    color: #1a1a1a !important;
+    font-size: 22px !important;
+    font-weight: bold;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+}
+.nav-post-btn svg {
+    stroke: #1a1a1a;
+}
+.nav-post-btn:hover {
+    background-color: #d6ab00 !important;
+    border-color: #d6ab00 !important;
+    transform: scale(1.08);
+}
 
 @media (min-width: 600px) {
     /* Show nav button, hide floating button */
