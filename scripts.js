@@ -609,15 +609,37 @@ function getTrackName(path) {
 }
 
 function updatePlaylistUI() {
-  const btn = document.getElementById("playlistPlayPause");
-  if (!btn) return;
-  if (isPlaylistPlaying) {
-    btn.classList.add("playing");
-    btn.title = "Pause playlist";
-  } else {
-    btn.classList.remove("playing");
-    btn.title = "Play playlist";
+  // Dashboard play/pause button
+  const dashBtn = document.getElementById("dashPlayPause");
+  if (dashBtn) {
+    dashBtn.classList.toggle("playing", isPlaylistPlaying);
+    dashBtn.title = isPlaylistPlaying ? "Pause playlist" : "Play playlist";
   }
+  // Floating player
+  const fp = document.getElementById("floatingPlayer");
+  const fpBtn = document.getElementById("floatingPlayPause");
+  if (fp) {
+    const onHome = document.body.classList.contains("view-home");
+    fp.classList.toggle("visible", isPlaylistPlaying && !onHome);
+    fp.classList.toggle("playing", isPlaylistPlaying);
+  }
+  if (fpBtn) {
+    fpBtn.title = isPlaylistPlaying ? "Pause" : "Play";
+  }
+}
+
+function updateNowPlayingName(name) {
+  const dashName = document.getElementById("dashTrackName");
+  if (dashName) dashName.textContent = name || "—";
+  const fpName = document.getElementById("floatingTrackName");
+  if (fpName) fpName.textContent = name ? "\u266a " + name : "\u266a";
+}
+
+function stopPlaylist() {
+  playlistAudio.pause();
+  isPlaylistPlaying = false;
+  updatePlaylistUI();
+  setTrackTitle(null);
 }
 
 const ORIGINAL_DOC_TITLE = document.title;
@@ -653,8 +675,9 @@ function playCurrentTrack() {
     .play()
     .then(() => {
       isPlaylistPlaying = true;
-      updatePlaylistUI();
       const trackName = getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]);
+      updatePlaylistUI();
+      updateNowPlayingName(trackName);
       showTrackToast(trackName);
       setTrackTitle(trackName);
     })
@@ -680,8 +703,10 @@ function togglePlaylist() {
         .play()
         .then(() => {
           isPlaylistPlaying = true;
+          const trackName = getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]);
           updatePlaylistUI();
-          setTrackTitle(getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]));
+          updateNowPlayingName(trackName);
+          setTrackTitle(trackName);
         })
         .catch((err) => console.warn("Playlist resume blocked:", err));
     }
@@ -930,6 +955,8 @@ function applyRoute() {
   // Hide scroll button when on home (no need)
   const sb = document.getElementById("scrollButton");
   if (sb && !isGallery) sb.classList.remove("visible");
+  // Sync floating player visibility with current view
+  updatePlaylistUI();
 }
 window.addEventListener("hashchange", applyRoute);
 

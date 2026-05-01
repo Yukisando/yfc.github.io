@@ -741,8 +741,8 @@ video.post-image {
     }
 }
 
-/* Playlist controls */
-.playlist-controls {
+/* Nav actions (right side of navbar) */
+.nav-actions {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -817,7 +817,7 @@ video.post-image {
 }
 
 @media (max-width: 480px) {
-    .playlist-controls {
+    .nav-actions {
         right: 12px;
         gap: 6px;
     }
@@ -828,6 +828,73 @@ video.post-image {
         border-width: 2px;
     }
 }
+
+/* Floating media player (shown on non-home pages while music plays) */
+.floating-player {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 26, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: #fac800;
+    border: 1.5px solid rgba(250, 200, 0, 0.45);
+    border-radius: 999px;
+    padding: 7px 10px 7px 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.82em;
+    font-weight: bold;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65);
+    z-index: 1500;
+    transition: top 0.42s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.35s ease;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    max-width: min(90vw, 480px);
+}
+.floating-player.visible {
+    top: 74px;
+    opacity: 1;
+    pointer-events: auto;
+}
+.floating-player-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #fac800;
+    max-width: 230px;
+    font-size: 0.84em;
+    letter-spacing: 0.01em;
+}
+.floating-player-btn {
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: 1.5px solid rgba(250, 200, 0, 0.35);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fac800;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+.floating-player-btn:hover {
+    background: rgba(250, 200, 0, 0.15);
+    border-color: #fac800;
+    transform: scale(1.1);
+}
+.floating-player-btn:active { transform: scale(0.92); }
+.floating-player-btn .icon { width: 12px; height: 12px; }
+.floating-player .icon-pause { display: none; }
+.floating-player.playing .icon-play { display: none; }
+.floating-player.playing .icon-pause { display: inline-block; }
 
 /* Carousel for multiple images */
 .carousel {
@@ -1183,9 +1250,9 @@ video.post-image {
 .icon { width: 1em; height: 1em; fill: currentColor; display: inline-block; vertical-align: middle; }
 .playlist-button .icon { width: 18px; height: 18px; }
 .scroll-button .icon { width: 26px; height: 26px; }
-#playlistPlayPause .icon-pause { display: none; }
-#playlistPlayPause.playing .icon-play { display: none; }
-#playlistPlayPause.playing .icon-pause { display: inline-block; }
+#dashPlayPause .icon-pause { display: none; }
+#dashPlayPause.playing .icon-play { display: none; }
+#dashPlayPause.playing .icon-pause { display: inline-block; }
 #scrollButton .icon-up { display: none; }
 #scrollButton.at-bottom .icon-down { display: none; }
 #scrollButton.at-bottom .icon-up { display: inline-block; }
@@ -1215,15 +1282,42 @@ video.post-image {
         grid-template-columns: repeat(6, 1fr);
         gap: 20px;
     }
-    .bento-gallery { grid-column: span 4; grid-row: span 2; }
-    .bento-armory  { grid-column: span 2; grid-row: span 2; }
-    .bento-stats   { grid-column: span 2; }
+    .bento-gallery  { grid-column: span 4; grid-row: span 2; }
+    .bento-armory   { grid-column: span 2; grid-row: span 2; }
+    .bento-playlist { grid-column: span 4; }
+    .bento-stats    { grid-column: span 2; }
 }
 @media (min-width: 1100px) {
     .bento-grid { grid-template-columns: repeat(8, 1fr); }
-    .bento-gallery { grid-column: span 4; grid-row: span 2; }
-    .bento-armory  { grid-column: span 4; grid-row: span 2; }
-    .bento-stats   { grid-column: span 8; }
+    .bento-gallery  { grid-column: span 4; grid-row: span 2; }
+    .bento-armory   { grid-column: span 4; grid-row: span 2; }
+    .bento-playlist { grid-column: span 4; }
+    .bento-stats    { grid-column: span 4; }
+}
+
+/* Playlist bento tile */
+.bento-playlist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 110px;
+    justify-content: flex-start;
+}
+.bento-playlist-name {
+    color: #fffbe6;
+    font-size: 0.88rem;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    line-height: 1.4;
+}
+.bento-playlist-btns {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: auto;
 }
 
 .bento-tile {

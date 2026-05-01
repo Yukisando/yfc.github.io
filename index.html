@@ -35,8 +35,8 @@
         </a>
       </h1>
 
-      <!-- Playlist controls -->
-      <div class="playlist-controls" id="playlistControls">
+      <!-- Nav actions -->
+      <div class="nav-actions" id="navActions">
         <button
           class="playlist-button nav-post-btn"
           title="Add New Post"
@@ -45,30 +45,26 @@
         >
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
         </button>
-        <button
-          class="playlist-button"
-          id="playlistPlayPause"
-          title="Play playlist"
-          aria-label="Play playlist"
-          onclick="togglePlaylist()"
-        >
-          <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-          <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-        </button>
-        <button
-          class="playlist-button"
-          id="playlistNext"
-          title="Next track"
-          aria-label="Next track"
-          onclick="nextTrack()"
-        >
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l8.5 6L6 18V6zm10 0h2v12h-2z"/></svg>
-        </button>
       </div>
     </div>
 
     <!-- Now-playing toast -->
     <div id="trackToast" class="track-toast" aria-live="polite"></div>
+
+    <!-- Floating media controls (shown on non-dashboard pages while music plays) -->
+    <div id="floatingPlayer" class="floating-player" aria-live="polite">
+      <span class="floating-player-title" id="floatingTrackName">♪</span>
+      <button class="floating-player-btn" id="floatingPlayPause" title="Play" aria-label="Play/Pause" onclick="togglePlaylist()">
+        <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <button class="floating-player-btn" title="Next track" aria-label="Next track" onclick="nextTrack()">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l8.5 6L6 18V6zm10 0h2v12h-2z"/></svg>
+      </button>
+      <button class="floating-player-btn" title="Stop" aria-label="Stop music" onclick="stopPlaylist()">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6z"/></svg>
+      </button>
+    </div>
 
     <!-- Floating New Post button - Opens modal form -->
     <button
@@ -162,6 +158,20 @@
           <p class="bento-sub">Dalaran · EU</p>
           <span class="bento-cta">Open Blizzard Armory →</span>
         </a>
+
+        <div class="bento-tile bento-playlist" id="dashPlaylist">
+          <span class="bento-eyebrow">Playlist</span>
+          <div class="bento-playlist-name" id="dashTrackName">—</div>
+          <div class="bento-playlist-btns">
+            <button class="playlist-button" id="dashPlayPause" title="Play playlist" aria-label="Play playlist" onclick="togglePlaylist()">
+              <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            </button>
+            <button class="playlist-button" id="dashNext" title="Next track" aria-label="Next track" onclick="nextTrack()">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l8.5 6L6 18V6zm10 0h2v12h-2z"/></svg>
+            </button>
+          </div>
+        </div>
 
         <div class="bento-tile bento-stats" id="charStats">
           <span class="bento-eyebrow">Character</span>
