@@ -182,8 +182,23 @@
       </div>
     </main>
 
-    <!-- Gallery wrapper: timeline slider + posts grid -->
+    <!-- Gallery wrapper: search bar + timeline slider + posts grid -->
     <div id="galleryWrap">
+      <div class="gallery-search-wrap">
+        <div class="gallery-search-inner">
+          <svg class="gallery-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input
+            type="search"
+            id="gallerySearch"
+            class="gallery-search-input"
+            placeholder="Search posts…"
+            aria-label="Search posts by date or caption"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span id="gallerySearchCount" class="gallery-search-count" hidden></span>
+        </div>
+      </div>
       <div id="expansionSlider" class="expansion-slider" aria-label="World of Warcraft expansion timeline"></div>
       <div id="posts-container" class="grid-container"></div>
     </div>

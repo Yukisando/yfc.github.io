@@ -1375,8 +1375,72 @@ body.view-gallery #dashboard { display: none; }
 body.view-home #posts-container { display: none; }
 body.view-home #expansionSlider { display: none; }
 body.view-home #galleryWrap { display: none; }
+body.view-home .gallery-search-wrap { display: none; }
 
 /* In gallery view, slider provides top spacing — collapse grid's own top margin */
+body.view-gallery #posts-container { margin-top: 12px; }
+
+/* === Gallery search bar === */
+.gallery-search-wrap {
+    position: sticky;
+    top: 70px;
+    z-index: 901;
+    margin: 88px 12px 0 12px;
+    padding: 0;
+}
+@media (min-width: 600px) {
+    .gallery-search-wrap { margin: 100px 12px 0 12px; top: 78px; }
+}
+@media (min-width: 900px) {
+    .gallery-search-wrap { margin: 110px 12px 0 12px; top: 86px; }
+}
+@media (min-width: 1300px) {
+    .gallery-search-wrap { margin: 120px 14px 0 14px; top: 92px; }
+}
+.gallery-search-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(20, 20, 20, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(250, 200, 0, 0.22);
+    border-radius: 10px;
+    padding: 7px 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+.gallery-search-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: #fac800;
+    opacity: 0.7;
+}
+.gallery-search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-family: "Comfortaa", "Trebuchet MS", sans-serif;
+    font-size: 0.88rem;
+    caret-color: #fac800;
+    min-width: 0;
+}
+.gallery-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+/* Hide the native clear (×) button from search inputs in webkit */
+.gallery-search-input::-webkit-search-cancel-button { display: none; }
+.gallery-search-count {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: rgba(250, 200, 0, 0.7);
+    white-space: nowrap;
+}
+
+/* When slider is hidden (during search) still keep the post-container's spacing */
+#expansionSlider[hidden] { display: none; }
 body.view-gallery #posts-container { margin-top: 12px; }
 
 /* Hide gallery-only floating buttons on home */
@@ -1389,7 +1453,7 @@ body.view-home .scroll-button { display: none; }
     position: sticky;
     top: 88px; /* sits just below the fixed nav bar (mobile) */
     z-index: 900;
-    margin: 90px 12px 8px 12px;
+    margin: 8px 12px 8px 12px;
     padding: 6px 10px 8px;
     background: rgba(20, 20, 20, 0.78);
     backdrop-filter: blur(10px);
@@ -1401,13 +1465,13 @@ body.view-home .scroll-button { display: none; }
 }
 
 @media (min-width: 600px) {
-    .expansion-slider { margin: 100px 12px 8px 12px; top: 78px; }
+    .expansion-slider { margin: 8px 12px 8px 12px; top: 78px; }
 }
 @media (min-width: 900px) {
-    .expansion-slider { margin: 110px 12px 8px 12px; top: 86px; }
+    .expansion-slider { margin: 8px 12px 8px 12px; top: 86px; }
 }
 @media (min-width: 1300px) {
-    .expansion-slider { margin: 120px 14px 8px 14px; top: 92px; }
+    .expansion-slider { margin: 8px 14px 8px 14px; top: 92px; }
 }
 
 .expansion-slider .exp-current {

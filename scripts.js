@@ -217,6 +217,7 @@ function createPost(post) {
     }
   }
 
+  postElement.dataset.search = (post.date + " " + post.content).toLowerCase();
   postElement.innerHTML = `
         <h3>${post.date}</h3>
         <div class="post-content">${post.content}</div>
@@ -516,6 +517,7 @@ var EXP_SLIDER_DRAGGING = false;
 var EXP_SCROLL_RAF = 0;
 
 fetchPosts();
+initGallerySearch();
 
 // ==========================
 // Playlist + welcome chime
@@ -854,6 +856,69 @@ function renderScreenshotOfTheDay() {
 function renderPostCount() {
   const el = document.getElementById("postCount");
   if (el) el.textContent = ALL_POSTS.length;
+}
+
+// --- Gallery search ---
+function filterGallery(query) {
+  const container = document.getElementById("posts-container");
+  const slider = document.getElementById("expansionSlider");
+  const countEl = document.getElementById("gallerySearchCount");
+  if (!container) return;
+
+  const q = query.trim().toLowerCase();
+
+  if (!q) {
+    // Show everything
+    container.querySelectorAll(".post").forEach((p) => (p.hidden = false));
+    container.querySelectorAll(".exp-section-header").forEach((h) => (h.hidden = false));
+    if (slider) slider.hidden = false;
+    if (countEl) countEl.hidden = true;
+    return;
+  }
+
+  // Hide slider while filtering
+  if (slider) slider.hidden = true;
+
+  let matchCount = 0;
+  container.querySelectorAll(".post").forEach((p) => {
+    const match = (p.dataset.search || "").includes(q);
+    p.hidden = !match;
+    if (match) matchCount++;
+  });
+
+  // Hide section headers with no visible posts
+  container.querySelectorAll(".exp-section-header").forEach((header) => {
+    let sibling = header.nextElementSibling;
+    let hasVisible = false;
+    while (sibling && !sibling.classList.contains("exp-section-header")) {
+      if (sibling.classList.contains("post") && !sibling.hidden) {
+        hasVisible = true;
+        break;
+      }
+      sibling = sibling.nextElementSibling;
+    }
+    header.hidden = !hasVisible;
+  });
+
+  if (countEl) {
+    countEl.textContent = matchCount === 0
+      ? "No results"
+      : matchCount === 1 ? "1 result" : `${matchCount} results`;
+    countEl.hidden = false;
+  }
+}
+
+function initGallerySearch() {
+  const input = document.getElementById("gallerySearch");
+  if (!input) return;
+  input.addEventListener("input", () => filterGallery(input.value));
+  // Clear search when navigating away from gallery
+  window.addEventListener("hashchange", () => {
+    if (!(location.hash || "").toLowerCase().startsWith("#/gallery")) {
+      input.value = "";
+      filterGallery("");
+    }
+  });
 }
 
 // --- Routing ---
