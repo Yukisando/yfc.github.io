@@ -678,7 +678,6 @@ function playCurrentTrack() {
       const trackName = getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]);
       updatePlaylistUI();
       updateNowPlayingName(trackName);
-      showTrackToast(trackName);
       setTrackTitle(trackName);
     })
     .catch((err) => {
@@ -1163,10 +1162,6 @@ function buildExpansionSlider(groups) {
     .join("");
 
   slider.innerHTML = `
-    <div class="exp-current">
-      <span class="exp-current-name">${groups[0].exp.name}</span>
-      <span class="exp-current-range" id="expCurrentRange"></span>
-    </div>
     <div class="exp-track" id="expTrack">
       <div class="exp-segments">${segmentsHtml}</div>
       <div class="exp-thumb" id="expThumb" tabindex="0" role="slider"
