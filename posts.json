@@ -1,5 +1,10 @@
 [
     {
+  "date": "DD-MM-YYYY",
+  "content": "your caption here",
+  "images": ["post-assets/form-1777619020158-0.jpeg"]
+},
+    {
         "date": "19-10-2019",
         "content": "Crafting food for my friends",
         "images": [
