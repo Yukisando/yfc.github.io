@@ -12,25 +12,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Add new post
+      - name: Pull latest (image commits land before dispatch)
+        run: git pull --rebase
+      - name: Add new post to posts.json
         env:
           POST_DATA: ${{ github.event.client_payload.post_data }}
         run: |
-          echo "$POST_DATA" > post.json
-          node <<'EOF'
-const fs = require('fs');
-const path = require('path');
-const post = JSON.parse(fs.readFileSync('post.json', 'utf8'));
-const postsPath = path.join(process.env.GITHUB_WORKSPACE, 'posts.json');
-const posts = JSON.parse(fs.readFileSync(postsPath, 'utf8'));
-posts.push(post);
-fs.writeFileSync(postsPath, JSON.stringify(posts, null, 2));
-EOF
+          node -e "
+          const fs = require('fs');
+          const post = JSON.parse(process.env.POST_DATA);
+          const postsPath = 'posts.json';
+          const posts = JSON.parse(fs.readFileSync(postsPath, 'utf8'));
+          posts.push(post);
+          fs.writeFileSync(postsPath, JSON.stringify(posts, null, 2));
+          "
       - name: Commit and push
         run: |
           git config user.name "yfc-bot"
           git config user.email "yfc-bot@users.noreply.github.com"
-          git pull --rebase
           git add posts.json
           git commit -m "Add new post via form"
           git push

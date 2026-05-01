@@ -38,6 +38,14 @@
       <!-- Playlist controls -->
       <div class="playlist-controls" id="playlistControls">
         <button
+          class="playlist-button nav-post-btn"
+          title="Add New Post"
+          aria-label="Add New Post"
+          onclick="openNewPostModal()"
+        >
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </button>
+        <button
           class="playlist-button"
           id="playlistPlayPause"
           title="Play playlist"
@@ -78,9 +86,25 @@
         <span class="modal-close" onclick="closeNewPostModal()">&times;</span>
         <h2>Add a New Post</h2>
         <form id="newPostForm" autocomplete="off">
-          <label>Date<br>
-            <input type="date" name="date" id="newPostDate" required>
-          </label><br>
+          <label>Date</label>
+          <div class="custom-date-picker" id="customDatePicker">
+            <button type="button" class="date-display" id="dateDisplay" aria-label="Pick a date">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span id="dateDisplayText">Select date…</span>
+            </button>
+            <div class="date-calendar" id="dateCalendar" hidden>
+              <div class="cal-header">
+                <button type="button" class="cal-nav" id="calPrev" aria-label="Previous month">&#8249;</button>
+                <span class="cal-month-year" id="calMonthYear"></span>
+                <button type="button" class="cal-nav" id="calNext" aria-label="Next month">&#8250;</button>
+              </div>
+              <div class="cal-days-header">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+              </div>
+              <div class="cal-days" id="calDays"></div>
+            </div>
+            <input type="hidden" name="date" id="newPostDate">
+          </div><br>
           <label>Caption<br><textarea name="content" maxlength="200" required></textarea></label><br>
           <label>Images<br>
             <input type="file" name="images" id="newPostImages" accept="image/*" multiple required style="display:none;">
