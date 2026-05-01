@@ -2,6 +2,12 @@ name: "Add New Post via Form"
 on:
   repository_dispatch:
     types: [add-new-post]
+  workflow_dispatch:
+    inputs:
+      post_data:
+        description: 'JSON string: {"date":"DD-MM-YYYY","content":"...","images":["post-assets/..."]}'
+        required: true
+        type: string
 jobs:
   add-post:
     runs-on: ubuntu-latest
@@ -18,7 +24,7 @@ jobs:
         run: git pull --rebase
       - name: Add new post to posts.json
         env:
-          POST_DATA: ${{ github.event.client_payload.post_data }}
+          POST_DATA: ${{ github.event.client_payload.post_data || github.event.inputs.post_data }}
         run: |
           node -e "
           const fs = require('fs');
