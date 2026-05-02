@@ -1302,8 +1302,8 @@ video.post-image {
     gap: 0;
     min-height: 0;
     padding: 10px 12px 10px 12px;
-    background: linear-gradient(135deg, #1e1e2a 0%, #1a1a22 100%);
-    border-color: rgba(170, 140, 255, 0.25);
+    background: linear-gradient(180deg, #2e2e2e 0%, #262626 100%);
+    border-color: rgba(250, 200, 0, 0.35);
     border-radius: 12px;
     overflow: hidden;
 }
@@ -1316,13 +1316,13 @@ video.post-image {
     font-size: 0.62rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #9a85d0;
+    color: #cccccc;
     font-weight: bold;
     line-height: 1;
     margin-bottom: 2px;
 }
 .bento-playlist-name {
-    color: #e0d8ff;
+    color: #fac800;
     font-size: 0.78rem;
     font-weight: bold;
     white-space: nowrap;
@@ -1344,7 +1344,7 @@ video.post-image {
 }
 .bento-tracklist-item {
     font-size: 0.68rem;
-    color: #b0a8d8;
+    color: #cccccc;
     padding: 3px 6px;
     border-radius: 5px;
     cursor: pointer;
@@ -1355,44 +1355,46 @@ video.post-image {
     flex-shrink: 0;
 }
 .bento-tracklist-item:hover {
-    background: rgba(154, 133, 208, 0.18);
-    color: #e0d8ff;
+    background: rgba(250, 200, 0, 0.15);
+    color: #fff;
 }
 .bento-tracklist-item.active {
-    background: rgba(154, 133, 208, 0.28);
-    color: #fff;
+    background: rgba(250, 200, 0, 0.22);
+    color: #fac800;
     font-weight: bold;
 }
 .bento-playlist-btns {
     display: flex;
     gap: 5px;
     align-items: center;
+    justify-content: center;
+    width: 100%;
     flex-shrink: 0;
 }
 .dash-pl-btn {
     width: 26px;
     height: 26px;
-    background: rgba(154, 133, 208, 0.15);
-    border: 1.5px solid rgba(154, 133, 208, 0.4);
+    background: rgba(250, 200, 0, 0.12);
+    border: 1.5px solid rgba(250, 200, 0, 0.4);
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #c5b8f0;
+    color: #fac800;
     transition: background 0.18s, border-color 0.18s, transform 0.12s;
     padding: 0;
 }
 .dash-pl-btn:hover {
-    background: rgba(154, 133, 208, 0.3);
-    border-color: #c5b8f0;
+    background: rgba(250, 200, 0, 0.28);
+    border-color: #fac800;
     transform: scale(1.1);
 }
 .dash-pl-btn:active { transform: scale(0.92); }
 .dash-pl-btn .icon { width: 11px; height: 11px; }
 .dash-pl-btn.playing {
-    background: rgba(154, 133, 208, 0.35);
-    border-color: #c5b8f0;
+    background: rgba(250, 200, 0, 0.28);
+    border-color: #fac800;
 }
 /* Play/pause icon toggle for dashboard button */
 #dashPlayPause .icon-pause { display: none; }
@@ -1562,9 +1564,9 @@ body.view-home .scroll-button { display: none; }
 /* === Sticky gallery controls wrapper (search + slider) === */
 .gallery-controls-sticky {
     position: sticky;
-    top: 70px;
+    top: 90px;
     z-index: 901;
-    margin-top: 88px;
+    margin-top: 90px;
     padding: 0;
 }
 @media (min-width: 600px) { .gallery-controls-sticky { top: 78px; margin-top: 100px; } }
