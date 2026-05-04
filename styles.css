@@ -36,6 +36,21 @@
     text-align: center;
     width: 100%;
 }
+.site-footer {
+    text-align: center;
+    padding: 12px 0 20px;
+    opacity: 0.45;
+}
+.site-footer-link {
+    color: #d6d6d6;
+    font-size: 0.72rem;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+}
+.site-footer-link:hover {
+    color: #fac800;
+    opacity: 1;
+}
 .modal-content input,
 .modal-content textarea,
 .modal-content button,
