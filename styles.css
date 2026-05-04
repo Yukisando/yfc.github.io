@@ -10,30 +10,31 @@
 }
 
 .bento-armory-icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin: 18px 0 10px 0;
-    min-height: 80px;
-}
-.bento-armory-icon {
-    width: 80px;
-    height: 80px;
-    max-width: 100%;
-    max-height: 100%;
-    display: block;
+    display: none;
 }
 .bento-armory {
-    min-height: 220px !important;
+    min-height: 280px !important;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    text-align: center;
+    align-items: flex-start;
+    justify-content: flex-end;
+    text-align: left;
 }
-.bento-armory h2, .bento-armory .bento-sub, .bento-armory .bento-cta {
-    text-align: center;
+.bento-armory::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.72) 65%, rgba(0,0,0,0.88) 100%);
+    z-index: 0;
+    border-radius: inherit;
+}
+.bento-armory .bento-eyebrow,
+.bento-armory h2,
+.bento-armory .bento-sub,
+.bento-armory .bento-cta {
+    position: relative;
+    z-index: 1;
+    text-align: left;
     width: 100%;
 }
 .site-footer {
@@ -1303,7 +1304,6 @@ video.post-image {
     .bento-stats    { grid-column: span 6; }
 }
 @media (min-width: 1100px) {
-    .bento-grid { grid-template-columns: repeat(8, 1fr); }
     .bento-gallery  { grid-column: span 4; grid-row: span 2; }
     .bento-armory   { grid-column: span 2; }
     .bento-playlist { grid-column: span 2; }
@@ -1458,10 +1458,13 @@ a.bento-tile:hover, .bento-tile:hover {
 .bento-stat span { font-size: 1.8rem; font-weight: bold; color: #fac800; line-height: 1; }
 .bento-stat small { color: #cccccc; font-size: 0.8rem; }
 .bento-source { color: #888; font-size: 0.65rem; margin-top: 8px; }
+.bento-armory {
+    background: url('assets/portrait.png') top center / cover no-repeat;
+}
 
 /* Gallery tile with screenshot-of-the-day as background */
 .bento-gallery {
-    min-height: 220px;
+    min-height: 0;
     padding: 0;
 }
 .bento-gallery .sotd-bg {
@@ -1486,14 +1489,13 @@ a.bento-tile:hover, .bento-tile:hover {
     z-index: 1;
 }
 .bento-gallery .bento-tile-inner {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 2;
     padding: 18px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 100%;
-    min-height: inherit;
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
 .bento-gallery .bento-tile-inner h2 { font-size: 1.5rem; }
