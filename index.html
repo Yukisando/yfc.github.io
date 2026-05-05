@@ -203,6 +203,8 @@
           </div>
         </div>
 
+        <div id="backstoryTile"></div>
+
         <div class="bento-tile bento-stats" id="charStats">
           <span class="bento-eyebrow">Character</span>
           <h2 id="charStatsTitle">Yükisan</h2>
@@ -219,8 +221,6 @@
           </ul>
           <span class="bento-source" id="statsSource"></span>
         </div>
-
-        <div id="backstoryTile"></div>
       </div>
     </main>
 
@@ -231,6 +231,12 @@
         <div id="expansionSlider" class="expansion-slider" aria-label="World of Warcraft expansion timeline"></div>
       </div>
       <div id="posts-container" class="grid-container"></div>
+    </div>
+
+    <!-- Portrait lightbox -->
+    <div id="portraitLightbox" class="portrait-lightbox" role="dialog" aria-modal="true" aria-label="Portrait" hidden>
+      <button class="portrait-lightbox-close" onclick="closePortraitLightbox()" aria-label="Close">&times;</button>
+      <img class="portrait-lightbox-img" src="" alt="Yuki portrait" />
     </div>
 
     <!-- Post Modal for expanded view -->

@@ -828,7 +828,7 @@ video.post-image {
 }
 
 .track-toast.visible {
-    top: 80px;
+    top: 110px;
     opacity: 1;
 }
 
@@ -1700,6 +1700,7 @@ body.view-home .scroll-button { display: none; }
 /* === Backstory RP tile === */
 .bento-backstory {
     justify-content: flex-start;
+    overflow: visible;
 }
 .backstory-top {
     margin-bottom: 16px;
@@ -1752,6 +1753,54 @@ body.view-home .scroll-button { display: none; }
     object-fit: cover;
     object-position: center top;
     filter: saturate(1.02) contrast(1.04);
+}
+.backstory-portrait-frame.is-clickable {
+    cursor: zoom-in;
+}
+.backstory-portrait-frame.is-clickable:hover .backstory-portrait-image {
+    filter: saturate(1.06) contrast(1.07) brightness(1.06);
+    transition: filter 0.2s;
+}
+
+/* Portrait lightbox */
+.portrait-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    animation: fadeIn 0.2s ease;
+}
+.portrait-lightbox[hidden] { display: none; }
+.portrait-lightbox-img {
+    max-width: min(480px, calc(100vw - 48px));
+    max-height: calc(100vh - 80px);
+    border-radius: 18px;
+    border: 2px solid rgba(250, 200, 0, 0.5);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(250, 200, 0, 0.12);
+    object-fit: contain;
+    animation: slideIn 0.22s ease-out;
+}
+.portrait-lightbox-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #fac800;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+.portrait-lightbox-close:hover {
+    background: rgba(250, 200, 0, 0.15);
 }
 .backstory-top-bar > div:first-child {
     min-width: 0;

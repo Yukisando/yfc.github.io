@@ -186,7 +186,7 @@ function buildBackstoryCardBody(section) {
 
   return `<div class="backstory-appearance-body">` +
     `<div class="backstory-appearance-copy">${section.contentHtml}</div>` +
-    `<figure class="backstory-portrait-frame">` +
+    `<figure class="backstory-portrait-frame is-clickable" data-src="${BACKSTORY_PORTRAIT}" role="button" tabindex="0" aria-label="View portrait full size">` +
       `<img src="${BACKSTORY_PORTRAIT}" alt="Yuki portrait" class="backstory-portrait-image">` +
     `</figure>` +
   `</div>`;
@@ -261,7 +261,22 @@ function bindBackstoryInteractions() {
   if (!root || root.dataset.bound === "true") return;
 
   root.dataset.bound = "true";
+  root.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      const portrait = event.target.closest(".backstory-portrait-frame.is-clickable");
+      if (portrait) {
+        event.preventDefault();
+        openPortraitLightbox(portrait.dataset.src);
+      }
+    }
+  });
   root.addEventListener("click", (event) => {
+    const portrait = event.target.closest(".backstory-portrait-frame.is-clickable");
+    if (portrait) {
+      openPortraitLightbox(portrait.dataset.src);
+      return;
+    }
+
     const languageButton = event.target.closest(".backstory-lang-button");
     if (languageButton) {
       const nextLanguage = languageButton.dataset.lang;
@@ -296,10 +311,28 @@ function bindBackstoryInteractions() {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeBackstoryTooltips();
+    if (event.key === "Escape") {
+      closeBackstoryTooltips();
+      closePortraitLightbox();
+    }
   });
 
   backstoryGlobalHandlersBound = true;
+}
+
+function openPortraitLightbox(src) {
+  const lb = document.getElementById("portraitLightbox");
+  if (!lb) return;
+  lb.querySelector(".portrait-lightbox-img").src = src || "";
+  lb.hidden = false;
+  lb.addEventListener("click", (e) => {
+    if (e.target === lb) closePortraitLightbox();
+  }, { once: false, capture: false });
+}
+
+function closePortraitLightbox() {
+  const lb = document.getElementById("portraitLightbox");
+  if (lb) lb.hidden = true;
 }
 
 function renderBackstoryTile() {
@@ -526,6 +559,7 @@ function createPost(post) {
     }
   }
 
+  postElement.dataset.date = post.date;
   postElement.dataset.search = (post.date + " " + post.content).toLowerCase();
   postElement.innerHTML = `
         <h3>${post.date}</h3>
@@ -1354,6 +1388,18 @@ function applyRoute() {
   if (sb && !isGallery) sb.classList.remove("visible");
   // Sync floating player visibility with current view
   updatePlaylistUI();
+
+  // When entering gallery, scroll to the screenshot-of-the-day post
+  if (isGallery) {
+    requestAnimationFrame(() => {
+      const pick = pickScreenshotOfTheDay();
+      if (!pick) return;
+      const el = document.querySelector(
+        `[data-date="${pick.post.date}"]`
+      );
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
 }
 window.addEventListener("hashchange", applyRoute);
 
