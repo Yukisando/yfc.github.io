@@ -23,7 +23,7 @@ Il lui arrive aussi de conjurer des tables garnies pour ses proches. Il en est e
 
 ## Martin, le pauvre écuyer
 
-Son écuyer a souvent l'air à la fois résigné et légèrement inquiet — sachant que l'appel de son maître annonce généralement une tâche ingrate qui tourne rarement comme prévu.
+Son écuyer a souvent l'air à la fois résigné et légèrement inquiet, sachant que l'appel de son maître annonce généralement une tâche ingrate qui tourne rarement comme prévu.
 
 ## Shifu l'imperturbable
 
@@ -49,4 +49,4 @@ Yüki donne l'image d'un gnome tranquille, charmant, presque ordinaire. Dans cer
 
 ## Origine récente
 
-Lors d'un séjour à Kul Tiras, Yüki fit la rencontre de pêcheurs liés aux routes maritimes de la famille Alcédis. Au fil de leurs échanges, il découvrit une compagnie discrète mais prestigieuse, composée de marins, marchands et explorateurs peu nombreux mais aguerris. C'est ainsi, presque par hasard, qu'il en vint à envisager de les suivre — davantage par goût des rencontres que par ambition.
+Lors d'un séjour à Kul Tiras, Yüki fit la rencontre de pêcheurs liés aux routes maritimes de la famille Alcédis. Au fil de leurs échanges, il découvrit une compagnie discrète mais prestigieuse, composée de marins, marchands et explorateurs peu nombreux mais aguerris. C'est ainsi, presque par hasard, qu'il en vint à envisager de les suivre, davantage par goût des rencontres que par ambition.
