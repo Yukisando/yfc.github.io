@@ -25,7 +25,7 @@ He also sometimes conjures lavish tables for his loved ones. He is immensely pro
 
 His squire often looks both resigned and slightly worried, knowing that his master's call usually means an unpleasant task that rarely goes according to plan.
 
-## Shifu the unflappable
+## Shifu the cursed
 
 Found in Elwynn Forest, Yüki accidentally cursed him during one of his very first experiments. Ever since, the poor sheep has been doomed to relive his tragic death over and over again.
 

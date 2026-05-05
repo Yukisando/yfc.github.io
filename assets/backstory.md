@@ -25,7 +25,7 @@ Il lui arrive aussi de conjurer des tables garnies pour ses proches. Il en est e
 
 Son écuyer a souvent l'air à la fois résigné et légèrement inquiet, sachant que l'appel de son maître annonce généralement une tâche ingrate qui tourne rarement comme prévu.
 
-## Shifu l'imperturbable
+## Shifu le maudit
 
 Trouvé dans la forêt d'Elwynn, Yüki l'a accidentellement maudit lors d'une de ses toute première expériences. Depuis, ce pauvre mouton revit sans fin sa mort tragique.
 
