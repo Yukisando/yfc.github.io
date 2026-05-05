@@ -27,7 +27,7 @@ His squire often looks both resigned and slightly worried, knowing that his mast
 
 ## Shifu the cursed
 
-Found in Elwynn Forest, Yüki accidentally cursed him during one of his very first experiments. Ever since, the poor sheep has been doomed to relive his tragic death over and over again.
+Found in Elwynn Forest, Yüki accidentally cursed him during one of his very first experiments. Ever since, the poor sheep has been doomed to relive his tragic death over and over again. He follows Yüki everywhere, hoping to find a way to break the curse, but it seems to be a lost cause.
 
 ## Bob the enthusiastic
 

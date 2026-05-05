@@ -885,6 +885,10 @@ const PLAYLIST_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
 let PLAYLIST_TRACKS = [];
 const WELCOME_CHIME = "assets/69. Quest Complete.mp3";
 
+// True only on the very first page load of this browser session
+const IS_FIRST_SESSION_VISIT = !sessionStorage.getItem("yfc-session-started");
+if (IS_FIRST_SESSION_VISIT) sessionStorage.setItem("yfc-session-started", "1");
+
 const playlistAudio = new Audio();
 playlistAudio.preload = "none";
 playlistAudio.volume = 0.5;
@@ -939,6 +943,20 @@ async function loadPlaylistTracks() {
   if (PLAYLIST_TRACKS.length === 0) PLAYLIST_TRACKS = PLAYLIST_FALLBACK.slice();
 
   reshuffle();
+
+  // On the very first visit of this browser session, queue Elwynn Ambiance first
+  if (IS_FIRST_SESSION_VISIT) {
+    const elwynnIdx = PLAYLIST_TRACKS.findIndex((p) =>
+      p.toLowerCase().includes("elwynn ambiance")
+    );
+    if (elwynnIdx !== -1) {
+      const pos = playlistOrder.indexOf(elwynnIdx);
+      if (pos !== -1) playlistOrder.splice(pos, 1);
+      playlistOrder.unshift(elwynnIdx);
+      playlistIndex = 0;
+    }
+  }
+
   renderDashTrackList();
 }
 
@@ -1220,6 +1238,24 @@ function playRandomEmote() {
 updatePlaylistUI();
 loadPlaylistTracks();
 loadEmoteTracks();
+
+// Auto-start on first user interaction (browsers block autoplay until then).
+// Only fires if nothing is already playing and this is the first session visit.
+(function () {
+  if (!IS_FIRST_SESSION_VISIT) return;
+  let started = false;
+  function onFirstInteraction() {
+    if (started) return;
+    started = true;
+    ["click", "keydown", "touchstart", "pointerdown"].forEach((evt) =>
+      document.removeEventListener(evt, onFirstInteraction, { capture: true })
+    );
+    if (!isPlaylistPlaying) playCurrentTrack();
+  }
+  ["click", "keydown", "touchstart", "pointerdown"].forEach((evt) =>
+    document.addEventListener(evt, onFirstInteraction, { capture: true })
+  );
+})();
 
 // ==========================
 // Dashboard, routing, stats
