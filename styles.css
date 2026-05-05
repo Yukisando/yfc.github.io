@@ -1595,14 +1595,11 @@ body.view-home .scroll-button { display: none; }
 /* === Sticky gallery controls wrapper (search + slider) === */
 .gallery-controls-sticky {
     position: sticky;
-    top: 90px;
+    top: 44px;
     z-index: 901;
-    margin-top: 90px;
-    padding: 0;
+    margin-top: 54px;
+    padding-top: 1px;
 }
-@media (min-width: 600px) { .gallery-controls-sticky { top: 78px; margin-top: 100px; } }
-@media (min-width: 900px) { .gallery-controls-sticky { top: 86px; margin-top: 110px; } }
-@media (min-width: 1300px) { .gallery-controls-sticky { top: 92px; margin-top: 120px; } }
 
 /* === Gallery search bar (in nav bar, collapsed by default, expands leftward) === */
 .gallery-search-wrap {
@@ -1695,7 +1692,7 @@ body.view-home .scroll-button { display: none; }
 /* === Expansion timeline slider (minimalist) === */
 .expansion-slider {
     margin: 5px 12px 0;
-    padding: 4px 10px;
+    padding: 4px 8px;
     background: rgba(20, 20, 20, 0.72);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
