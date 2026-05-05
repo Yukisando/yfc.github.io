@@ -41,6 +41,8 @@ const BACKSTORY_FILES = {
   en: "assets/backstory.en.md",
 };
 
+const BACKSTORY_PORTRAIT = "assets/portrait.png";
+
 let activeBackstoryLanguage = "fr";
 let backstorySources = {};
 let backstoryGlobalHandlersBound = false;
@@ -104,7 +106,7 @@ function extractBackstoryData(md) {
   tmp.innerHTML = parseBackstoryMd(md);
 
   const h1 = tmp.querySelector("h1");
-  const title = h1 ? h1.textContent : "Backstory RP";
+  const title = h1 ? h1.textContent : "Backstory";
   const allChildren = Array.from(tmp.children);
   const firstH2Idx = allChildren.findIndex((el) => el.tagName === "H2");
   const headerPs = (firstH2Idx > -1 ? allChildren.slice(0, firstH2Idx) : allChildren)
@@ -178,10 +180,22 @@ function buildCompanionBadges(companionLine, companionDetails) {
     .join("");
 }
 
+function buildBackstoryCardBody(section) {
+  const isAppearance = section.key === "apparence" || section.key === "appearance";
+  if (!isAppearance) return section.contentHtml;
+
+  return `<div class="backstory-appearance-body">` +
+    `<div class="backstory-appearance-copy">${section.contentHtml}</div>` +
+    `<figure class="backstory-portrait-frame">` +
+      `<img src="${BACKSTORY_PORTRAIT}" alt="Yuki portrait" class="backstory-portrait-image">` +
+    `</figure>` +
+  `</div>`;
+}
+
 function renderBackstoryCard(section, extraClass = "") {
   return `<div class="backstory-card${extraClass}">` +
     `<div class="backstory-card-title">${section.title}</div>` +
-    `${section.contentHtml}` +
+    `${buildBackstoryCardBody(section)}` +
   `</div>`;
 }
 
@@ -209,13 +223,14 @@ function buildBackstoryCards(sections) {
 
   sections.forEach((section, index) => {
     const isCompanions = section.key === "compagnons" || section.key === "companions";
+    const isShifu = section.key.startsWith("shifu");
     const isMartin = section.key.startsWith("martin");
     const isBob = section.key.startsWith("bob");
     const isHabits = section.key === "habitudes et passions" || section.key === "habits and passions";
 
     if (isCompanions) return;
 
-    if (isMartin || isBob) {
+    if (isShifu || isMartin || isBob) {
       mergedCompanionStories.push(section);
       return;
     }

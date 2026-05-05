@@ -1707,6 +1707,49 @@ body.view-home .scroll-button { display: none; }
     justify-content: space-between;
     gap: 12px;
 }
+.backstory-appearance-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.backstory-appearance-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.backstory-portrait-frame {
+    position: relative;
+    margin: auto auto 0;
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 4 / 5;
+    align-self: center;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(250, 200, 0, 0.24);
+    background:
+        radial-gradient(circle at top, rgba(250, 200, 0, 0.18), rgba(250, 200, 0, 0) 58%),
+        linear-gradient(180deg, rgba(52, 46, 31, 0.95) 0%, rgba(28, 24, 18, 0.98) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 243, 196, 0.08), 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+.backstory-portrait-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0) 38%, rgba(10, 8, 5, 0.34) 100%),
+        radial-gradient(circle at top, rgba(255, 233, 154, 0.16), rgba(255, 233, 154, 0) 52%);
+    pointer-events: none;
+    z-index: 1;
+}
+.backstory-portrait-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: saturate(1.02) contrast(1.04);
+}
 .backstory-top-bar > div:first-child {
     min-width: 0;
 }
@@ -1860,6 +1903,9 @@ body.view-home .scroll-button { display: none; }
     .backstory-top-bar {
         flex-direction: column;
         align-items: stretch;
+    }
+    .backstory-portrait-frame {
+        max-width: 180px;
     }
     .backstory-lang-toggle {
         align-self: flex-end;
