@@ -1227,13 +1227,15 @@ updatePlaylistUI();
 loadPlaylistTracks();
 loadEmoteTracks();
 
-// Auto-start on first user interaction (browsers block autoplay until then).
+// Auto-start on first interaction within the backstory bento only.
 // Only fires if nothing is already playing and this is the first session visit.
 (function () {
   if (!IS_FIRST_SESSION_VISIT) return;
   let started = false;
-  function onFirstInteraction() {
+  function onFirstInteraction(e) {
     if (started) return;
+    const backstory = document.getElementById("backstory");
+    if (!backstory || !backstory.contains(e.target)) return;
     started = true;
     ["click", "keydown", "touchstart", "pointerdown"].forEach((evt) =>
       document.removeEventListener(evt, onFirstInteraction, { capture: true })
