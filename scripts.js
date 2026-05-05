@@ -863,7 +863,7 @@ fetchPosts();
 initGallerySearch();
 
 // ==========================
-// Playlist + welcome chime
+// Playlist
 // ==========================
 const PLAYLIST_REPO = "Yukisando/yfc.github.io";
 const PLAYLIST_DIR = "assets/playlist";
@@ -883,7 +883,6 @@ const PLAYLIST_CACHE_KEY = "yfc-playlist";
 const PLAYLIST_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
 
 let PLAYLIST_TRACKS = [];
-const WELCOME_CHIME = "assets/69. Quest Complete.mp3";
 
 // True only on the very first page load of this browser session
 const IS_FIRST_SESSION_VISIT = !sessionStorage.getItem("yfc-session-started");
@@ -1132,17 +1131,6 @@ playlistAudio.addEventListener("pause", () => {
   }
 });
 
-// Chime played when user opens the gallery.
-function playGalleryChime() {
-  try {
-    const chime = new Audio(encodeURI(WELCOME_CHIME));
-    chime.volume = 0.6;
-    const attempt = chime.play();
-    if (attempt && typeof attempt.catch === "function") {
-      attempt.catch(() => {});
-    }
-  } catch (_) {}
-}
 
 // ==========================
 // Random emotes (yuki button)
