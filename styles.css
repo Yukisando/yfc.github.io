@@ -1302,12 +1302,14 @@ video.post-image {
     .bento-armory   { grid-column: span 2; }
     .bento-playlist { grid-column: span 2; }
     .bento-stats    { grid-column: span 6; }
+    .bento-backstory { grid-column: span 6; }
 }
 @media (min-width: 1100px) {
     .bento-gallery  { grid-column: span 4; grid-row: span 2; }
     .bento-armory   { grid-column: span 2; }
     .bento-playlist { grid-column: span 2; }
     .bento-stats    { grid-column: span 8; }
+    .bento-backstory { grid-column: span 8; }
 }
 
 /* Playlist bento tile – tiny modern chip */
@@ -1691,6 +1693,178 @@ body.view-home .scroll-button { display: none; }
     user-select: none;
 }
 @media (min-width: 1300px) { .expansion-slider { margin: 5px 14px 0; } }
+
+/* === Backstory RP tile === */
+.bento-backstory {
+    justify-content: flex-start;
+}
+.backstory-top {
+    margin-bottom: 16px;
+}
+.backstory-top-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.backstory-top-bar > div:first-child {
+    min-width: 0;
+}
+.backstory-lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid rgba(250, 200, 0, 0.2);
+    background: rgba(0, 0, 0, 0.18);
+    flex-shrink: 0;
+}
+.backstory-lang-button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: #b8b8b8;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+.backstory-lang-button:hover {
+    color: #fff2bf;
+}
+.backstory-lang-button.is-active {
+    background: rgba(250, 200, 0, 0.16);
+    color: #fac800;
+}
+.backstory-companions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.companion-chip {
+    position: relative;
+}
+.companion-badge {
+    background: rgba(250, 200, 0, 0.1);
+    border: 1px solid rgba(250, 200, 0, 0.3);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    color: #fac800;
+    font-weight: bold;
+}
+.companion-badge-button {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.companion-badge-button:hover,
+.companion-chip.is-open .companion-badge-button {
+    background: rgba(250, 200, 0, 0.18);
+    border-color: rgba(250, 200, 0, 0.5);
+    color: #fff2bf;
+}
+.companion-badge-icon {
+    line-height: 1;
+}
+.companion-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 4;
+    width: min(280px, calc(100vw - 64px));
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(250, 200, 0, 0.24);
+    background: linear-gradient(180deg, #2f2a1d 0%, #231f16 100%);
+    color: #efe3b1;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.32);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.18s, transform 0.18s;
+}
+.companion-chip.is-open .companion-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+.backstory-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+@media (min-width: 700px) {
+    .backstory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .backstory-card-span-2 { grid-column: span 2; }
+    .backstory-card-wide { grid-column: 1 / -1; }
+}
+.backstory-card {
+    background: rgba(250, 200, 0, 0.06);
+    border: 1px solid rgba(250, 200, 0, 0.18);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+.backstory-card-section-separated {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(250, 200, 0, 0.12);
+}
+.backstory-card-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fac800;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+.backstory-card p {
+    font-size: 0.82rem;
+    color: #d6d6d6;
+    margin: 0;
+    line-height: 1.5;
+}
+.backstory-traits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.backstory-traits-list li {
+    font-size: 0.82rem;
+    color: #d6d6d6;
+    padding-left: 10px;
+    position: relative;
+    line-height: 1.4;
+}
+.backstory-traits-list li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    color: #fac800;
+}
+@media (max-width: 520px) {
+    .backstory-top-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .backstory-lang-toggle {
+        align-self: flex-end;
+    }
+}
 
 .expansion-slider .exp-track {
     position: relative;

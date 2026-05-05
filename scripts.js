@@ -36,6 +36,302 @@ function getExpansionForDate(date) {
   return chosen;
 }
 
+const BACKSTORY_FILES = {
+  fr: "assets/backstory.md",
+  en: "assets/backstory.en.md",
+};
+
+let activeBackstoryLanguage = "fr";
+let backstorySources = {};
+let backstoryGlobalHandlersBound = false;
+
+function parseBackstoryMd(src) {
+  const lines = src.split("\n");
+  let out = "";
+  let inList = false;
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    const h1 = line.match(/^# (.+)/);
+    const h2 = line.match(/^## (.+)/);
+    const li = line.match(/^- (.+)/);
+
+    if (h1) {
+      if (inList) {
+        out += "</ul>";
+        inList = false;
+      }
+      out += `<h1>${h1[1]}</h1>`;
+    } else if (h2) {
+      if (inList) {
+        out += "</ul>";
+        inList = false;
+      }
+      out += `<h2>${h2[1]}</h2>`;
+    } else if (li) {
+      if (!inList) {
+        out += '<ul class="backstory-traits-list">';
+        inList = true;
+      }
+      out += `<li>${li[1]}</li>`;
+    } else if (line.trim()) {
+      if (inList) {
+        out += "</ul>";
+        inList = false;
+      }
+      out += `<p>${line.trim()}</p>`;
+    } else if (inList) {
+      out += "</ul>";
+      inList = false;
+    }
+  }
+
+  if (inList) out += "</ul>";
+  return out;
+}
+
+function normalizeBackstoryKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function extractBackstoryData(md) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = parseBackstoryMd(md);
+
+  const h1 = tmp.querySelector("h1");
+  const title = h1 ? h1.textContent : "Backstory RP";
+  const allChildren = Array.from(tmp.children);
+  const firstH2Idx = allChildren.findIndex((el) => el.tagName === "H2");
+  const headerPs = (firstH2Idx > -1 ? allChildren.slice(0, firstH2Idx) : allChildren)
+    .filter((el) => el.tagName === "P");
+
+  const sections = Array.from(tmp.querySelectorAll("h2")).map((heading) => {
+    let contentHtml = "";
+    let sibling = heading.nextElementSibling;
+    while (sibling && sibling.tagName !== "H2") {
+      contentHtml += sibling.outerHTML;
+      sibling = sibling.nextElementSibling;
+    }
+
+    return {
+      title: heading.textContent.trim(),
+      key: normalizeBackstoryKey(heading.textContent),
+      contentHtml,
+    };
+  });
+
+  const companionsSection = sections.find((section) => (
+    section.key === "compagnons" || section.key === "companions"
+  ));
+  const companionDetails = {};
+
+  if (companionsSection) {
+    const companionTmp = document.createElement("div");
+    companionTmp.innerHTML = companionsSection.contentHtml;
+    Array.from(companionTmp.querySelectorAll("p")).forEach((paragraph) => {
+      const text = paragraph.textContent.trim();
+      const match = text.match(/^\*\*(.+?)\s*:\*\*\s*(.+)$/);
+      if (!match) return;
+
+      const name = match[1].trim();
+      companionDetails[normalizeBackstoryKey(name)] = {
+        name,
+        description: match[2].trim(),
+      };
+    });
+  }
+
+  return {
+    title,
+    subtitle: headerPs[0] ? headerPs[0].textContent : "",
+    companionLine: headerPs[1] ? headerPs[1].textContent : "",
+    sections,
+    companionDetails,
+  };
+}
+
+function buildCompanionBadges(companionLine, companionDetails) {
+  return companionLine
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const match = part.match(/^(\S+)\s+(.+)$/);
+      const icon = match ? match[1] : "";
+      const name = match ? match[2] : part;
+      const key = normalizeBackstoryKey(name);
+      const tooltip = companionDetails[key] ? companionDetails[key].description : name;
+
+      return `<div class="companion-chip">` +
+        `<button type="button" class="companion-badge companion-badge-button" data-companion="${key}" aria-expanded="false">` +
+        `${icon ? `<span class="companion-badge-icon" aria-hidden="true">${icon}</span>` : ""}` +
+        `<span>${name}</span>` +
+        `</button>` +
+        `<div class="companion-tooltip" role="tooltip">${tooltip}</div>` +
+      `</div>`;
+    })
+    .join("");
+}
+
+function renderBackstoryCard(section, extraClass = "") {
+  return `<div class="backstory-card${extraClass}">` +
+    `<div class="backstory-card-title">${section.title}</div>` +
+    `${section.contentHtml}` +
+  `</div>`;
+}
+
+function renderMergedBackstoryCard(sections) {
+  const content = sections.map((section, index) => {
+    const separatorClass = index ? " backstory-card-section-separated" : "";
+    return `<div class="backstory-card-section${separatorClass}">` +
+      `<div class="backstory-card-title">${section.title}</div>` +
+      `${section.contentHtml}` +
+    `</div>`;
+  }).join("");
+
+  return `<div class="backstory-card">${content}</div>`;
+}
+
+function buildBackstoryCards(sections) {
+  const cards = [];
+  let mergedCompanionStories = [];
+
+  const flushMergedCompanionStories = () => {
+    if (!mergedCompanionStories.length) return;
+    cards.push(renderMergedBackstoryCard(mergedCompanionStories));
+    mergedCompanionStories = [];
+  };
+
+  sections.forEach((section, index) => {
+    const isCompanions = section.key === "compagnons" || section.key === "companions";
+    const isMartin = section.key.startsWith("martin");
+    const isBob = section.key.startsWith("bob");
+    const isHabits = section.key === "habitudes et passions" || section.key === "habits and passions";
+
+    if (isCompanions) return;
+
+    if (isMartin || isBob) {
+      mergedCompanionStories.push(section);
+      return;
+    }
+
+    flushMergedCompanionStories();
+
+    let extraClass = "";
+    if (isHabits) extraClass += " backstory-card-span-2";
+    cards.push(renderBackstoryCard(section, extraClass));
+  });
+
+  flushMergedCompanionStories();
+  return cards.join("");
+}
+
+function closeBackstoryTooltips(root = document.getElementById("backstory")) {
+  if (!root) return;
+
+  root.querySelectorAll(".companion-chip.is-open").forEach((chip) => {
+    chip.classList.remove("is-open");
+    const button = chip.querySelector(".companion-badge-button");
+    if (button) button.setAttribute("aria-expanded", "false");
+  });
+}
+
+function bindBackstoryInteractions() {
+  const root = document.getElementById("backstory");
+  if (!root || root.dataset.bound === "true") return;
+
+  root.dataset.bound = "true";
+  root.addEventListener("click", (event) => {
+    const languageButton = event.target.closest(".backstory-lang-button");
+    if (languageButton) {
+      const nextLanguage = languageButton.dataset.lang;
+      if (nextLanguage && nextLanguage !== activeBackstoryLanguage && backstorySources[nextLanguage]) {
+        activeBackstoryLanguage = nextLanguage;
+        renderBackstoryTile();
+      }
+      return;
+    }
+
+    const companionButton = event.target.closest(".companion-badge-button");
+    if (!companionButton) {
+      closeBackstoryTooltips(root);
+      return;
+    }
+
+    event.preventDefault();
+    const chip = companionButton.closest(".companion-chip");
+    const wasOpen = chip && chip.classList.contains("is-open");
+    closeBackstoryTooltips(root);
+
+    if (chip && !wasOpen) {
+      chip.classList.add("is-open");
+      companionButton.setAttribute("aria-expanded", "true");
+    }
+  });
+
+  if (backstoryGlobalHandlersBound) return;
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest("#backstory")) closeBackstoryTooltips();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeBackstoryTooltips();
+  });
+
+  backstoryGlobalHandlersBound = true;
+}
+
+function renderBackstoryTile() {
+  const source = backstorySources[activeBackstoryLanguage] || backstorySources.fr;
+  const target = document.getElementById("backstory") || document.getElementById("backstoryTile");
+  if (!source || !target) return;
+
+  const data = extractBackstoryData(source);
+  const cards = buildBackstoryCards(data.sections);
+  const companionBadges = buildCompanionBadges(data.companionLine, data.companionDetails);
+  const languageToggle = Object.keys(backstorySources).length > 1
+    ? `<div class="backstory-lang-toggle" role="group" aria-label="Backstory language">` +
+        `<button type="button" class="backstory-lang-button${activeBackstoryLanguage === "fr" ? " is-active" : ""}" data-lang="fr">FR</button>` +
+        `<button type="button" class="backstory-lang-button${activeBackstoryLanguage === "en" ? " is-active" : ""}" data-lang="en">EN</button>` +
+      `</div>`
+    : "";
+
+  target.outerHTML = `<div class="bento-tile bento-backstory" id="backstory">` +
+    `<div class="backstory-top">` +
+      `<div class="backstory-top-bar">` +
+        `<div><h2>${data.title}</h2><p class="bento-sub">${data.subtitle}</p></div>` +
+        `${languageToggle}` +
+      `</div>` +
+      `<div class="backstory-companions-row">${companionBadges}</div>` +
+    `</div>` +
+    `<div class="backstory-grid">${cards}</div>` +
+  `</div>`;
+
+  bindBackstoryInteractions();
+}
+
+Promise.allSettled(Object.entries(BACKSTORY_FILES).map(async ([language, path]) => {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`Failed to load ${path}`);
+  return [language, await response.text()];
+}))
+  .then((results) => {
+    results.forEach((result) => {
+      if (result.status !== "fulfilled") return;
+      const [language, source] = result.value;
+      backstorySources[language] = source;
+    });
+
+    if (backstorySources.fr) renderBackstoryTile();
+  })
+  .catch(() => {});
+
 async function fetchPosts() {
   try {
     // Always revalidate with the server — GitHub Pages uses ETags so the
