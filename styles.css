@@ -1466,8 +1466,11 @@ a.bento-tile:hover, .bento-tile:hover {
 
 /* Gallery tile with screenshot-of-the-day as background */
 .bento-gallery {
-    min-height: 0;
+    min-height: 260px;
     padding: 0;
+}
+@media (min-width: 700px) {
+    .bento-gallery { min-height: 0; }
 }
 .bento-gallery .sotd-bg {
     position: absolute; inset: 0;
