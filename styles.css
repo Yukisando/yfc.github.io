@@ -1317,8 +1317,8 @@ video.post-image {
     .bento-gallery  { grid-column: span 4; grid-row: span 2; }
     .bento-armory   { grid-column: span 2; }
     .bento-playlist { grid-column: span 2; }
-    .bento-stats    { grid-column: span 8; }
-    .bento-backstory { grid-column: span 8; }
+    .bento-stats    { grid-column: span 6; }
+    .bento-backstory { grid-column: span 6; }
 }
 
 /* Playlist bento tile – tiny modern chip */
@@ -1470,7 +1470,7 @@ a.bento-tile:hover, .bento-tile:hover {
 .bento-stat small { color: #cccccc; font-size: 0.8rem; }
 .bento-source { color: #888; font-size: 0.65rem; margin-top: 8px; }
 .bento-armory {
-    background: url('assets/portrait.png') top center / cover no-repeat;
+    background: url('assets/portrait_line.png') top center / cover no-repeat;
 }
 
 /* Gallery tile with screenshot-of-the-day as background */
