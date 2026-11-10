@@ -876,12 +876,36 @@ const PLAYLIST_FALLBACK = [
   "assets/playlist/31. Capital of the Humans.mp3",
   "assets/playlist/58. Dun Morogh.mp3",
   "assets/playlist/68. Elwynn Forest.mp3",
-  "assets/playlist/World of Warcraft but it's Guitar.mp3",
+  "assets/playlist/WoW Guitar Welcome.mp3",
 ];
 
 // Queued first on every page load, started at a random spot and faded in
-const INTRO_TRACK = "world of warcraft but it's guitar";
+const INTRO_TRACK = "wow guitar welcome";
 const PLAYLIST_VOLUME = 0.5;
+
+// Credits shown as an "i" link next to the track, keyed by track name (lowercase)
+const TRACK_CREDITS = {
+  "wow guitar welcome": {
+    by: "bits & hits",
+    title: "World of Warcraft but it's Guitar",
+    url: "https://youtu.be/gM_kjxLxEOc",
+  },
+};
+
+function makeCreditLink(name) {
+  const credit = TRACK_CREDITS[(name || "").toLowerCase()];
+  if (!credit) return null;
+  const a = document.createElement("a");
+  a.className = "track-credit";
+  a.href = credit.url;
+  a.target = "_blank";
+  a.rel = "noopener";
+  a.textContent = "i";
+  a.title = `Music: "${credit.title}" by ${credit.by}`;
+  a.setAttribute("aria-label", a.title);
+  a.addEventListener("click", (e) => e.stopPropagation());
+  return a;
+}
 const INTRO_FADE_MS = 4000;
 
 const AUDIO_EXTS = [".mp3", ".ogg", ".wav", ".m4a", ".aac", ".flac", ".webm"];
@@ -998,7 +1022,11 @@ function updatePlaylistUI() {
 
 function updateNowPlayingName(name) {
   const dashName = document.getElementById("dashTrackName");
-  if (dashName) dashName.textContent = name || "—";
+  if (dashName) {
+    dashName.textContent = name || "—";
+    const credit = makeCreditLink(name);
+    if (credit) dashName.append(" ", credit);
+  }
   const fpName = document.getElementById("floatingTrackName");
   if (fpName) fpName.textContent = name ? "\u266a " + name : "\u266a";
 }
@@ -1136,7 +1164,12 @@ function renderDashTrackList() {
     const li = document.createElement("li");
     li.className = "bento-tracklist-item";
     li.dataset.trackIdx = idx;
-    li.textContent = getTrackName(path);
+    const name = document.createElement("span");
+    name.className = "track-name";
+    name.textContent = getTrackName(path);
+    li.appendChild(name);
+    const credit = makeCreditLink(name.textContent);
+    if (credit) li.appendChild(credit);
     li.addEventListener("click", () => {
       // Find this track index in the shuffled order; if not found, play directly
       const orderIdx = playlistOrder.indexOf(idx);

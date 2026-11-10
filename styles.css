@@ -1374,11 +1374,40 @@ video.post-image {
     padding: 3px 6px;
     border-radius: 5px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.14s, color 0.14s;
+    flex-shrink: 0;
+}
+.bento-tracklist-item .track-name {
+    flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background 0.14s, color 0.14s;
+}
+/* Credits "i" link next to a track */
+.track-credit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 13px;
+    height: 13px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font: italic bold 9px/1 Georgia, serif;
+    color: #cccccc;
+    text-decoration: none;
+    opacity: 0.75;
+    vertical-align: middle;
+    transition: opacity 0.14s, color 0.14s;
+}
+.track-credit:hover,
+.track-credit:focus-visible {
+    opacity: 1;
+    color: #fac800;
 }
 .bento-tracklist-item:hover {
     background: rgba(250, 200, 0, 0.15);
