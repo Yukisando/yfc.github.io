@@ -876,7 +876,13 @@ const PLAYLIST_FALLBACK = [
   "assets/playlist/31. Capital of the Humans.mp3",
   "assets/playlist/58. Dun Morogh.mp3",
   "assets/playlist/68. Elwynn Forest.mp3",
+  "assets/playlist/World of Warcraft but it's Guitar.mp3",
 ];
+
+// Queued first on every page load, started at a random spot and faded in
+const INTRO_TRACK = "world of warcraft but it's guitar";
+const PLAYLIST_VOLUME = 0.5;
+const INTRO_FADE_MS = 4000;
 
 const AUDIO_EXTS = [".mp3", ".ogg", ".wav", ".m4a", ".aac", ".flac", ".webm"];
 const PLAYLIST_CACHE_KEY = "yfc-playlist";
@@ -884,13 +890,9 @@ const PLAYLIST_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
 
 let PLAYLIST_TRACKS = [];
 
-// True only on the very first page load of this browser session
-const IS_FIRST_SESSION_VISIT = !sessionStorage.getItem("yfc-session-started");
-if (IS_FIRST_SESSION_VISIT) sessionStorage.setItem("yfc-session-started", "1");
-
 const playlistAudio = new Audio();
 playlistAudio.preload = "none";
-playlistAudio.volume = 0.5;
+playlistAudio.volume = PLAYLIST_VOLUME;
 
 let playlistOrder = [];
 let playlistIndex = 0;
@@ -943,17 +945,15 @@ async function loadPlaylistTracks() {
 
   reshuffle();
 
-  // On the very first visit of this browser session, queue Elwynn Ambiance first
-  if (IS_FIRST_SESSION_VISIT) {
-    const elwynnIdx = PLAYLIST_TRACKS.findIndex((p) =>
-      p.toLowerCase().includes("elwynn ambiance")
-    );
-    if (elwynnIdx !== -1) {
-      const pos = playlistOrder.indexOf(elwynnIdx);
-      if (pos !== -1) playlistOrder.splice(pos, 1);
-      playlistOrder.unshift(elwynnIdx);
-      playlistIndex = 0;
-    }
+  // Queue the intro track first on every page load
+  const introIdx = PLAYLIST_TRACKS.findIndex((p) =>
+    p.toLowerCase().includes(INTRO_TRACK)
+  );
+  if (introIdx !== -1) {
+    const pos = playlistOrder.indexOf(introIdx);
+    if (pos !== -1) playlistOrder.splice(pos, 1);
+    playlistOrder.unshift(introIdx);
+    playlistIndex = 0;
   }
 
   renderDashTrackList();
@@ -1036,12 +1036,40 @@ function loadCurrentTrack() {
   playlistAudio.src = encodeURI(src);
 }
 
-function playCurrentTrack() {
-  if (PLAYLIST_TRACKS.length === 0) return;
+let fadeTimer = null;
+function fadeInPlaylist() {
+  if (fadeTimer) clearInterval(fadeTimer);
+  const start = Date.now();
+  playlistAudio.volume = 0;
+  fadeTimer = setInterval(() => {
+    const t = Math.min(1, (Date.now() - start) / INTRO_FADE_MS);
+    playlistAudio.volume = PLAYLIST_VOLUME * t;
+    if (t >= 1) {
+      clearInterval(fadeTimer);
+      fadeTimer = null;
+    }
+  }, 50);
+}
+
+// opts.randomStart: seek to a random spot; opts.fadeIn: ramp the volume up.
+// Resolves true if playback started, false if the browser blocked it.
+function playCurrentTrack(opts = {}) {
+  if (PLAYLIST_TRACKS.length === 0) return Promise.resolve(false);
+  if (fadeTimer) {
+    clearInterval(fadeTimer);
+    fadeTimer = null;
+  }
+  playlistAudio.volume = opts.fadeIn ? 0 : PLAYLIST_VOLUME;
   loadCurrentTrack();
-  playlistAudio
+  return playlistAudio
     .play()
     .then(() => {
+      if (opts.randomStart && isFinite(playlistAudio.duration)) {
+        // Leave at least two minutes before the end
+        const room = Math.max(0, playlistAudio.duration - 120);
+        playlistAudio.currentTime = Math.random() * room;
+      }
+      if (opts.fadeIn) fadeInPlaylist();
       isPlaylistPlaying = true;
       const trackName = getTrackName(PLAYLIST_TRACKS[playlistOrder[playlistIndex]]);
       updatePlaylistUI();
@@ -1051,11 +1079,13 @@ function playCurrentTrack() {
       // Scroll the active track into view in the dashboard list
       const activeItem = document.querySelector(".bento-tracklist-item.active");
       if (activeItem) activeItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return true;
     })
     .catch((err) => {
       console.warn("Playlist play blocked:", err);
       isPlaylistPlaying = false;
       updatePlaylistUI();
+      return false;
     });
 }
 
@@ -1224,28 +1254,27 @@ function playRandomEmote() {
 }
 
 updatePlaylistUI();
-loadPlaylistTracks();
 loadEmoteTracks();
 
-// Auto-start on first interaction within the backstory bento only.
-// Only fires if nothing is already playing and this is the first session visit.
-(function () {
-  if (!IS_FIRST_SESSION_VISIT) return;
-  let started = false;
-  function onFirstInteraction(e) {
+// Auto-play the intro track on page load at a random spot, faded in.
+// Browsers block sound before the visitor interacts with the page, so if the
+// first attempt is refused, start on the first click/key/touch anywhere.
+loadPlaylistTracks().then(() => {
+  const opts = { randomStart: true, fadeIn: true };
+  playCurrentTrack(opts).then((started) => {
     if (started) return;
-    const backstory = document.getElementById("backstory");
-    if (!backstory || !backstory.contains(e.target)) return;
-    started = true;
-    ["click", "keydown", "touchstart", "pointerdown"].forEach((evt) =>
-      document.removeEventListener(evt, onFirstInteraction, { capture: true })
+    const events = ["click", "keydown", "touchstart", "pointerdown"];
+    function onFirstInteraction() {
+      events.forEach((evt) =>
+        document.removeEventListener(evt, onFirstInteraction, { capture: true })
+      );
+      if (!isPlaylistPlaying) playCurrentTrack(opts);
+    }
+    events.forEach((evt) =>
+      document.addEventListener(evt, onFirstInteraction, { capture: true })
     );
-    if (!isPlaylistPlaying) playCurrentTrack();
-  }
-  ["click", "keydown", "touchstart", "pointerdown"].forEach((evt) =>
-    document.addEventListener(evt, onFirstInteraction, { capture: true })
-  );
-})();
+  });
+});
 
 // ==========================
 // Dashboard, routing, stats
